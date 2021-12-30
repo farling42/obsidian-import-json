@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.1",
+	"id": "obsidian-import-json",
+	"name": "JSON Importer",
+	"version": "0.1.0",
 	"minAppVersion": "0.12.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
+	"description": "This plugin imports a JSON file and creates notes from a Handlebars template file",
+	"author": "farling42",
+	"authorUrl": "https://github.com/farling42/",
 	"isDesktopOnly": false
 }
