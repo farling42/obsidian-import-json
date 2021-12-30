@@ -6,5 +6,5 @@
 	"description": "This plugin imports a JSON file and creates notes from a Handlebars template file",
 	"author": "farling42",
 	"authorUrl": "https://github.com/farling42/",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }
