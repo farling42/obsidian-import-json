@@ -4,14 +4,12 @@ let Handlebars = require('handlebars');
 
 // Remember to rename these classes and interfaces!
 
-const GS_OBSIDIAN_FOLDER = "assetLocation";
 const SET_JSON_FILE     = "jsonFile";
 const SET_TEMPLATE_FILE = "templateFile";
 const SET_JSON_NAME     = "jsonName";
 const SET_FOLDER_NAME   = "folderName";
 
 interface JsonImportSettings {
-	[GS_OBSIDIAN_FOLDER]: string;
 	[SET_JSON_FILE]: string;
 	[SET_TEMPLATE_FILE]: string;
 	[SET_JSON_NAME]: string;
@@ -19,7 +17,6 @@ interface JsonImportSettings {
 }
 
 const DEFAULT_SETTINGS: JsonImportSettings = {
-	[GS_OBSIDIAN_FOLDER]: "JsonImport",
 	[SET_JSON_FILE]: "rewards.json",
 	[SET_TEMPLATE_FILE]: "rewards.md",
 	[SET_JSON_NAME]: "name",
@@ -42,9 +39,6 @@ export default class JsonImport extends Plugin {
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('json-import-ribbon-class');
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		//this.addSettingTab(new ImportJsonSettingTab(this.app, this));
 	}
 
 	onunload() {
@@ -78,17 +72,27 @@ export default class JsonImport extends Plugin {
 		//console.log(`template = '${template}'`);
 
 		// Firstly, convert JSON to an object
-		let keys = Object.keys(json);
-		if (keys.length!=1) {
-			new Notice("JSON doesn't have a top-level array");
-			return;
+		let topjson:any;
+		if (Array.isArray(json))
+			topjson = json;
+		else {
+			let keys = Object.keys(json);
+			if (keys.length!=1) {
+				new Notice("JSON doesn't have a top-level array");
+				return;
+			}
+			topjson = json[keys[0]];
 		}
-		let topjson = json[keys[0]];
 
 		if (!Array.isArray(topjson)) {
 			new Notice("JSON file does not contain an array!");
 			return;
 		}
+
+		// Save current settings
+		this.settings[SET_JSON_NAME]   = jsonnamefield;
+		this.settings[SET_FOLDER_NAME] = topfolder;
+		this.saveSettings();
 
 		// Ensure that the destination folder exists
 		if (topfolder.length>0) {
@@ -98,8 +102,10 @@ export default class JsonImport extends Plugin {
 		topjson.forEach( async(row:any) => {
 			let notefile = row[jsonnamefield];
 			let body = template(row);
-			if (body.contains("[object Object]"))
-				console.warn(`OUT '${notefile}' = '${body}'`);
+			if (body.contains("[object Object]")) {
+				console.log(`[object Object] appears in '${notefile}'`);
+				new Notice(`Incomplete conversion for '${notefile}'. Look for '[object Object]' (also reported in console)`);
+			}
 
 			let filename = topfolder + "/" + this.validFilename(notefile) + ".md";
 			// Delete the old version, if it exists
@@ -171,6 +177,7 @@ class FileSelectionModal extends Modal {
 	
 	    const setting5 = new Setting(this.contentEl).setName("Import").setDesc("Press to start the Import Process");
     	const input5 = setting5.controlEl.createEl("button");
+		input5.textContent = "IMPORT";
 
     	input5.onclick = async () => {
       		const { files:jsonfiles } = input1;
@@ -194,33 +201,3 @@ class FileSelectionModal extends Modal {
 		contentEl.empty();
 	}
 }
-/*
-class ImportJsonSettingTab extends PluginSettingTab {
-	plugin: JsonImport;
-
-	constructor(app: App, plugin: JsonImport) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings[GS_OBSIDIAN_FOLDER])
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings[GS_OBSIDIAN_FOLDER] = value;
-					await this.plugin.saveSettings();
-				}));
-	}
-}
-*/
