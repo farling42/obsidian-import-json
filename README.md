@@ -8,7 +8,7 @@ Clicking the icon will open a dialog window with four fields:
 
 - "Choose JSON File" will allow to you pick any .json file.
 
-- "Choose TEMPLATE File" will allow you to choose any .md file, which should be a Handlebars template file.
+- "Choose TEMPLATE File" will allow you to choose any .md file, which should be a Handlebars template file (see https://handlebarsjs.com/guide/).
 
 - "JSON name field" will allow you to specify the JSON field within each row of the table which should be used as the name of the note.
 
