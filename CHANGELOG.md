@@ -1,7 +1,10 @@
-# 0.4.0
+# 0.5.0
 Add handlebars-helpers as an additional library of options available (see https://github.com/helpers/handlebars-helpers)
 
 Add our own "{{table ...}}" helper to perform string look-up mapping tables efficiently.
+
+# 0.4.1
+Get build working automatically on github.
 
 # 0.3.0
 
