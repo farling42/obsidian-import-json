@@ -1,3 +1,8 @@
+# 0.4.0
+Add handlebars-helpers as an additional library of options available (see https://github.com/helpers/handlebars-helpers)
+
+Add our own "{{table ...}}" helper to perform string look-up mapping tables efficiently.
+
 # 0.3.0
 
 Put "IMPORT" label onto the GO button.

@@ -21,3 +21,25 @@ When the IMPORT button is pressed then the JSON file will be read and all the no
 If your Handlebars template file tries to reference something in the JSON data which isn't a simple text field, then the generated note will contain the text \[object Object].
 
 A notice will appear for each such note, but opening Obsidian's dev window (on MS Windows use Ctrl+Shift+i) will also show the list of affected notes.
+
+### Additional Handlebar Functions
+
+When building handlebars template files, you will have access to all the handlebars-helpers provided at https://github.com/helpers/handlebars-helpers/
+
+### New Handlebar Functions
+
+#### Table Lookup
+
+A new inline helper "{{table" is available. It is used to lookup a value in a static look-up table and replace it with another value.
+- The first parameter is the value to be translated into another value.
+- value1 is the value to be compared to the lookup value.
+- result1 is the result of the {{table}} helper if the lookup value is equal to value1
+- value2 result2 = second set of possible matches
+- etc, as many pairs of value/result as you need.
+(any/all of the lookup value and value/result values can be fields or fixed strings)
+
+```
+{{!-- {{table "blue" "red" "angry" "blue" "sad" "yellow" "envious" "green" "happy"}}   --}}
+{{!-- will be converted into the string 'sad'  (taking "blue" and looking for the value/result pair that matches) }}
+{{table lookup value1 result1 value2 result2 value3 result3}}
+```

@@ -1,6 +1,8 @@
 import { generateKeySync } from 'crypto';
 import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
-let Handlebars = require('handlebars');
+let handlebars = require('handlebars');
+let hb_helpers = require('handlebars-helpers')({handlebars: handlebars});
+let hb_utils   = require('handlebars-utils');
 
 // Remember to rename these classes and interfaces!
 
@@ -58,6 +60,24 @@ export default class JsonImport extends Plugin {
 		return name.replace(regexp,'_');
 	}
 	
+	hb_table() {
+		// HB:  {{ table string val1 result1 val2 result2 val3 result3 ... }}
+		if (!arguments[0]) return arguments[0];
+		if (arguments.length < 4) return "";  // string val1 result1 options
+		let len     = arguments.length-1;
+		let options = arguments[len];
+		let value   = arguments[0].toString();
+		for (let i=1; i<len; i+=2)
+		{
+			if (value == arguments[i])
+			{
+				value = arguments[i+1];
+				break;
+			}
+		}
+		return hb_utils.value(value, this, options);
+	}
+
 	async convertJson(jsonfile:File, templatefile:File, jsonnamefield:string, topfolder:string) {
 		//console.log(`convertJson(${jsonfile.path}, ${templatefile.path}, '${jsonnamefield}' , '${topfolder}' )`);
 
@@ -68,7 +88,8 @@ export default class JsonImport extends Plugin {
 		const compileoptions = { noEscape: true };
 		let templatetext = await templatefile.text();
 		//console.log(`templatetext=\n${templatetext}\n`);
-		let template = Handlebars.compile(templatetext);
+		let template = handlebars.compile(templatetext);
+		handlebars.registerHelper('table', this.hb_table);
 		//console.log(`template = '${template}'`);
 
 		// Firstly, convert JSON to an object
