@@ -1,4 +1,4 @@
-![Latest Release Download Count](https://img.shields.io/github/downloads/farling42/obsidian-import-json/latest/module.zip)
+![Latest Release Download Count](https://img.shields.io/github/downloads/farling42/obsidian-import-json/latest/main.js)
 
 ## Import JSON
 
