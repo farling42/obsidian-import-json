@@ -117,12 +117,12 @@ export default class JsonImport extends Plugin {
 
 		// Ensure that the destination folder exists
 		if (topfolder.length>0) {
-			await this.app.vault.createFolder(topfolder).catch(er => console.log(`Destination '${topfolder}' already exists`));
+			await this.app.vault.createFolder(topfolder).catch(err => console.log(`app.vault.createFolder: ${err}`));
 		}
 
-		topjson.forEach( async(row:any) => {
+		for (let row of topjson.values()) {
 			let notefile = row[jsonnamefield];
-			let body = template(row);
+			let body = template(row);   // convert HTML to markdown
 			if (body.contains("[object Object]")) {
 				console.log(`[object Object] appears in '${notefile}'`);
 				new Notice(`Incomplete conversion for '${notefile}'. Look for '[object Object]' (also reported in console)`);
@@ -131,10 +131,10 @@ export default class JsonImport extends Plugin {
 			let filename = topfolder + "/" + this.validFilename(notefile) + ".md";
 			// Delete the old version, if it exists
 			let exist = this.app.vault.getAbstractFileByPath(filename);
-			if (exist) await this.app.vault.delete(exist);
+			if (exist) await this.app.vault.delete(exist).catch(err => console.log(`app.vault.delete: ${err}`));
 
-			await this.app.vault.create(filename, body);
-		});
+			await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create: ${app}`));
+		}
 	}
 }
 

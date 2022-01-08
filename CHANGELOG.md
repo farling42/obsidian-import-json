@@ -1,3 +1,6 @@
+# 0.5.1
+Remove use of forEach()
+
 # 0.5.0
 Add handlebars-helpers as an additional library of options available (see https://github.com/helpers/handlebars-helpers)
 
