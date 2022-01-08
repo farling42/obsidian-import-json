@@ -1,3 +1,5 @@
+![Latest Release Download Count](https://img.shields.io/github/downloads/farling42/obsidian-import-json/latest/main.js)
+
 ## Import JSON
 
 This plug-in provides you with the tools to import your favourite JSON tables.
