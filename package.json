@@ -1,7 +1,7 @@
 {
 	"name": "obsidian-import-json",
-	"version": "0.5.1",
-	"description": "This plugin imports a JSON file and creates notes from a Handlebars template file",
+	"version": "0.6.0",
+	"description": "This plugin imports a JSON file (or text block) and creates notes from a Handlebars template file",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

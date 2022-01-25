@@ -1,3 +1,6 @@
+# 0.6.0
+Add a text box into which the JSON text can be pasted, as an alternative to reading in a file.
+
 # 0.5.1
 Remove use of forEach()
 
