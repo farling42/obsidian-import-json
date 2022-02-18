@@ -1,3 +1,6 @@
+# 0.7.1
+Ignore any entry in the source data which does not have a value present for the note filename.
+
 # 0.7.0
 Add initial support for CSV files, which REQUIRE that the first line of the file is a HEADER line.
 

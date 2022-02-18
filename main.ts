@@ -142,6 +142,9 @@ export default class JsonImport extends Plugin {
 
 		for (let row of topobj.values()) {
 			let notefile = row[jsonnamefield];
+			// Ignore lines with an empty name field
+			if (!notefile || notefile.length == 0) continue;
+
 			let body = template(row);   // convert HTML to markdown
 			if (body.contains("[object Object]")) {
 				console.log(`[object Object] appears in '${notefile}'`);
