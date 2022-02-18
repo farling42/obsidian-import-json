@@ -1,3 +1,6 @@
+# 0.7.0
+Add initial support for CSV files, which REQUIRE that the first line of the file is a HEADER line.
+
 # 0.6.0
 Add a text box into which the JSON text can be pasted, as an alternative to reading in a file.
 
