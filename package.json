@@ -23,6 +23,7 @@
 		"typescript": "4.4.4"
 	},
 	"dependencies": {
-		"handlebars-helpers": "^0.10.0"
+		"handlebars-helpers": "^0.10.0",
+		"papaparse": "^5.3.1"
 	}
 }
