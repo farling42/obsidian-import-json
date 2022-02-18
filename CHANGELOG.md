@@ -1,3 +1,6 @@
+# 0.7.2
+Fix version information in various configuration files.
+
 # 0.7.1
 Ignore any entry in the source data which does not have a value present for the note filename.
 
