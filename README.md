@@ -22,11 +22,15 @@ Clicking the icon will open a dialog window with four fields:
 
 When the IMPORT button is pressed then the JSON/CSV file will be read and all the notes created.
 
-### Note
+### Notes
 
 If your Handlebars template file tries to reference something in the JSON data which isn't a simple text field, then the generated note will contain the text \[object Object].
 
 A notice will appear for each such note, but opening Obsidian's dev window (on MS Windows use Ctrl+Shift+i) will also show the list of affected notes.
+
+The CSV decoder should auto-detect the actual separator from any of: comma, tab, pipe, semicolon, ASCII record separator (30), ASCII unit separator (31). (Blank lines in the CSV file will be ignored.)
+
+For CSV decoding, the list of detected delimiter, linebreak, and fields (column names) are displayed in the Obsidian Developer Console.
 
 ### Additional Handlebar Functions
 

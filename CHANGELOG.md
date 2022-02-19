@@ -1,3 +1,7 @@
+# 0.8.0
+Improve CSV conversion to use more capabilities of the PapaParse library.
+The library tries to auto-detect the separator; any of comma, tab, pipe, semicolon, ASCII record separator (30), ASCII unit separator(31).
+
 # 0.7.2
 Fix version information in various configuration files.
 

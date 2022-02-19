@@ -30,20 +30,13 @@ const DEFAULT_SETTINGS: JsonImportSettings = {
 
 function convertCsv(source: string)
 {
-	let from = Papa.parse(source);
-	// first row = column titles
-	let titles = from.data[0];
-	let csv = [];
-	// Convert simple 2-D array into an array of objects with column title as field name;
-	for (let i=1;i<from.data.length;i++) {
-		let line = from.data[i];
-		let obj:any = {};
-		for (let c=0; c<line.length; c++) {
-			if (line[c].length > 0) obj[titles[c]] = line[c];
-		}
-		csv.push(obj);
+	// header: true - the first row is headers, and each header defines the name of the field in the returned object array
+	let csv = Papa.parse(source, {header: true, skipEmptyLines: true});
+	if (csv.errors?.length) {
+		console.warn( JSON.stringify(csv.errors, null, 2));
 	}
-	return csv;
+	console.log(JSON.stringify(csv.meta, null, 2));
+	return csv.data;
 }
 
 export default class JsonImport extends Plugin {
