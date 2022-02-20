@@ -1,3 +1,6 @@
+# 0.9.1
+Add new handlers helper function:  strarray string       (converts a string into an array, e.g. for use with #each)
+
 # 0.9.0
 Add new Handlebars helper function:   substring string start length   (returns the part of 'string' starting at 'start' (first character = 0) with a length of 'length')
 

@@ -54,7 +54,7 @@ A new inline helper "{{table" is available. It is used to lookup a value in a st
 {{table lookup value1 result1 value2 result2 value3 result3}}
 ```
 
-#### Substring
+#### substring
 
 {{substring string start length}}
 
@@ -64,3 +64,9 @@ This will return a string containing the part of 'string' starting at offset sta
 {{substring "HAROLD" 3 2}}
 {{!-- will return the string "OL", since 3 corresponds to the fourth letter in the string, and 2 refers to the number of characters to return starting at that position. --}}
 ```
+
+### strarray
+
+{{strarray "HAROLD"}}
+
+Converts the supplied string into an array of characters; primarily for use with #each to iterate over each letter in a string.

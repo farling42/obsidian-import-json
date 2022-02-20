@@ -104,6 +104,15 @@ export default class JsonImport extends Plugin {
 		return orig;
 	}
 
+	hb_strarray() {
+		let orig = arguments[0];
+		if (arguments.length != 2 || typeof orig !== "string") return arguments[0];
+		let result = [];
+		for (let i=0; i<orig.length; i++)
+			result.push(orig[i]);
+		return result;
+	}
+
 	async generateNotes(objdata:any, templatefile:File, jsonnamefield:string, topfolder:string) {
 		//console.log(`generateNotes(${jsonfile.path}, ${templatefile.path}, '${jsonnamefield}' , '${topfolder}' )`);
 
@@ -114,8 +123,9 @@ export default class JsonImport extends Plugin {
 		let templatetext = await templatefile.text();
 		//console.log(`templatetext=\n${templatetext}\n`);
 		let template = handlebars.compile(templatetext);
-		handlebars.registerHelper('table', this.hb_table);
+		handlebars.registerHelper('table',     this.hb_table);
 		handlebars.registerHelper('substring', this.hb_substring);
+		handlebars.registerHelper('strarray',  this.hb_strarray);
 
 		//console.log(`template = '${template}'`);
 
