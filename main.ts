@@ -92,6 +92,18 @@ export default class JsonImport extends Plugin {
 		return hb_utils.value(value, this, options);
 	}
 
+	hb_substring() {
+		let orig = arguments[0];
+		if (arguments.length === 4) {
+			// fourth parameter = options
+			let beginPos = arguments[1];
+			let length   = arguments[2];
+			if (typeof orig === "string" && typeof beginPos === "number" && typeof length === "number")
+				return orig.slice(beginPos, beginPos+length);
+		}
+		return orig;
+	}
+
 	async generateNotes(objdata:any, templatefile:File, jsonnamefield:string, topfolder:string) {
 		//console.log(`generateNotes(${jsonfile.path}, ${templatefile.path}, '${jsonnamefield}' , '${topfolder}' )`);
 
@@ -103,6 +115,8 @@ export default class JsonImport extends Plugin {
 		//console.log(`templatetext=\n${templatetext}\n`);
 		let template = handlebars.compile(templatetext);
 		handlebars.registerHelper('table', this.hb_table);
+		handlebars.registerHelper('substring', this.hb_substring);
+
 		//console.log(`template = '${template}'`);
 
 		// Firstly, convert JSON to an object

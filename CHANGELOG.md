@@ -1,3 +1,6 @@
+# 0.9.0
+Add new Handlebars helper function:   substring string start length   (returns the part of 'string' starting at 'start' (first character = 0) with a length of 'length')
+
 # 0.8.0
 Improve CSV conversion to use more capabilities of the PapaParse library.
 The library tries to auto-detect the separator; any of comma, tab, pipe, semicolon, ASCII record separator (30), ASCII unit separator(31).
