@@ -50,6 +50,17 @@ A new inline helper "{{table" is available. It is used to lookup a value in a st
 
 ```
 {{!-- {{table "blue" "red" "angry" "blue" "sad" "yellow" "envious" "green" "happy"}}   --}}
-{{!-- will be converted into the string 'sad'  (taking "blue" and looking for the value/result pair that matches) }}
+{{!-- will be converted into the string 'sad'  (taking "blue" and looking for the value/result pair that matches) --}}
 {{table lookup value1 result1 value2 result2 value3 result3}}
+```
+
+#### Substring
+
+{{substring string start length}}
+
+This will return a string containing the part of 'string' starting at offset start (0=first letter) and will return 'length' characters from that offset (if the string is shorter than start+length, then the remainder of the string will be returned).
+
+```
+{{substring "HAROLD" 3 2}}
+{{!-- will return the string "OL", since 3 corresponds to the fourth letter in the string, and 2 refers to the number of characters to return starting at that position. --}}
 ```
