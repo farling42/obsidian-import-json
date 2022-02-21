@@ -47,6 +47,8 @@ A new inline helper "{{table" is available. It is used to lookup a value in a st
 - value2 result2 = second set of possible matches
 - etc, as many pairs of value/result as you need.
 (any/all of the lookup value and value/result values can be fields or fixed strings)
+- value* can contain a javascript regular expression (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
+- result* can contain capturing groups (e.g. $1) to copy information from the matching string.
 
 ```
 {{!-- {{table "blue" "red" "angry" "blue" "sad" "yellow" "envious" "green" "happy"}}   --}}

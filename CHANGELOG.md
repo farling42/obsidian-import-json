@@ -1,3 +1,11 @@
+# 0.10.0
+The "table" function now supports pattern matching as per the Javascript Regular Expression syntax (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions).
+For example, the following contains two tables, first looking at the first part of the string to determine Lawful/Neutral/Chaotic, and a second table to look at the second half of the string for Good/Neutral/Evil.
+```
+{{table alignment "U" "Unaligned" "A" "Any" "N" "True Neutral" "L,." "Lawful" "N,." "Neutral" "C,." "Chaotic"}}{{table alignment "[A|N|U]" "" ".,G" " Good" ".,N" " Neutral" ".,E" " Evil"}}
+```
+It also supports numbered groups, so a search pattern of "M(\d+)" will allow you to specify "Medium $1" as the replacement string - where $1 will be replaced by the "\d+" part of the search pattern. (The parenthese identify the pattern that will be usable as $1, the second pair of parentheses will be usable as $2, etc.)
+
 # 0.9.1
 Add new handlers helper function:  strarray string       (converts a string into an array, e.g. for use with #each)
 

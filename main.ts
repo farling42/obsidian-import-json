@@ -1,3 +1,4 @@
+import { groupCollapsed } from 'console';
 import { generateKeySync } from 'crypto';
 import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 const Papa = require('papaparse');
@@ -83,34 +84,51 @@ export default class JsonImport extends Plugin {
 		let value   = arguments[0].toString();
 		for (let i=1; i<len; i+=2)
 		{
-			if (value == arguments[i])
+			/*if (value == arguments[i])
 			{
 				value = arguments[i+1];
 				break;
+			}*/
+			let result = value.match(RegExp(`^${arguments[i]}$`, 'u'));
+			if (result)
+			{
+				value = arguments[i+1];
+				// Replace all occurrences of $n with the corresponding match
+				if (result.length>1) {
+					console.info(JSON.stringify(result.groups, null, 2));
+					value = value.replaceAll(/\$(\d+)/g, (match:string, p1:string) => {
+						let param = +p1;  // first parameter = 1
+						if (param < result.length)
+							return result[param];
+						else
+							return match;	// number is too high!
+					})
+				}
 			}
 		}
 		return hb_utils.value(value, this, options);
 	}
 
 	hb_substring() {
-		let orig = arguments[0];
-		if (arguments.length === 4) {
+		let len     = arguments.length-1;
+		let options = arguments[len];
+		let value = arguments[0];
+		if (len === 3) {
 			// fourth parameter = options
 			let beginPos = arguments[1];
 			let length   = arguments[2];
-			if (typeof orig === "string" && typeof beginPos === "number" && typeof length === "number")
-				return orig.slice(beginPos, beginPos+length);
+			if (typeof value === "string" && typeof beginPos === "number" && typeof length === "number")
+				value = value.slice(beginPos, beginPos+length);
 		}
-		return orig;
+		return hb_utils.value(value, this, options);
 	}
 
 	hb_strarray() {
+		let len     = arguments.length-1;
+		let options = arguments[len];
 		let orig = arguments[0];
-		if (arguments.length != 2 || typeof orig !== "string") return arguments[0];
-		let result = [];
-		for (let i=0; i<orig.length; i++)
-			result.push(orig[i]);
-		return result;
+		if (arguments.length != 2 || typeof orig !== "string") return hb_utils.value(orig, this, options);
+		return hb_utils.value([...orig], this, options);
 	}
 
 	async generateNotes(objdata:any, templatefile:File, jsonnamefield:string, topfolder:string) {
