@@ -220,12 +220,11 @@ class FileSelectionModal extends Modal {
 	}
 
 	onOpen() {
-		let mode:string;
 	    const setting1 = new Setting(this.contentEl).setName("Choose JSON/CSV File").setDesc("Choose JSON/CSV data file to import, or paste text into the text box");
-    	const inputJsonFile = setting1.controlEl.createEl("input", {
+    	const inputDataFile = setting1.controlEl.createEl("input", {
       		attr: {
         		type: "file",
-        		accept: ".json,.csv"
+        		accept: ".json,.csv,.tsv"
       		}
     	});
     	const inputJsonText = setting1.controlEl.createEl("textarea", {
@@ -245,7 +244,7 @@ class FileSelectionModal extends Modal {
     	});
 		//input2.value = this.default_templfile;
 	
-	    const setting3 = new Setting(this.contentEl).setName("JSON name field").setDesc("Field in each row of the JSON data to be used for the note name");
+	    const setting3 = new Setting(this.contentEl).setName("Field to use as Note name").setDesc("Field in each row of the JSON/CSV data to be used for the note name");
     	const inputNameField = setting3.controlEl.createEl("input", {
       		attr: {
         		type: "string"
@@ -253,7 +252,7 @@ class FileSelectionModal extends Modal {
     	});
 		inputNameField.value = this.default_jsonname;
 	
-	    const setting4 = new Setting(this.contentEl).setName("Set Folder").setDesc("Name of Obsidian Folder");
+	    const setting4 = new Setting(this.contentEl).setName("Name of Destination Folder in Vault").setDesc("The name of the folder in your Obsidian Vault, which will be created if required");
     	const inputFolderName = setting4.controlEl.createEl("input", {
       		attr: {
         		type: "string"
@@ -267,18 +266,19 @@ class FileSelectionModal extends Modal {
 
     	input5.onclick = async () => {
 			let srctext = inputJsonText.value;
+			let is_json:boolean;
 			if (srctext.length == 0) {
-				const { files:jsonfiles } = inputJsonFile;
-				if (!jsonfiles.length) {
+				const { files:datafiles } = inputDataFile;
+				if (!datafiles.length) {
 				  	new Notice("No JSON file selected");
 				  	return;
 			  	}
-			  	srctext = await jsonfiles[0].text();
-				mode = jsonfiles[0].name.endsWith(".csv") ? "CSV" : "JSON";
+			  	srctext = await datafiles[0].text();
+				is_json = datafiles[0].name.endsWith(".json");
 			} else {
-				mode = (srctext.startsWith('{') && srctext.endsWith('}')) ? "JSON" : "CSV";
+				is_json = (srctext.startsWith('{') && srctext.endsWith('}'));
 			}
-			let objdata:any = (mode === 'CSV') ? convertCsv(srctext) : JSON.parse(srctext);
+			let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
 			const { files:templatefiles } = inputTemplateFile;
 			if (!templatefiles.length) {
 				new Notice("No Template file selected");

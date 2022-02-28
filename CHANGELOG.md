@@ -1,3 +1,7 @@
+# 0.11.0
+Add .tsv as an additional file type for matching (tab separated value files).
+Clarify some field names in the launch dialogue.
+
 # 0.10.0
 The "table" function now supports pattern matching as per the Javascript Regular Expression syntax (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions).
 For example, the following contains two tables, first looking at the first part of the string to determine Lawful/Neutral/Chaotic, and a second table to look at the second half of the string for Good/Neutral/Evil.
