@@ -1,3 +1,6 @@
+# 0.12.0
+Switch to Budibase's fork of handlebars-helpers, since that builds properly.
+
 # 0.11.0
 Add .tsv as an additional file type for matching (tab separated value files).
 Clarify some field names in the launch dialogue.
