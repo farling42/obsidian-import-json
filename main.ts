@@ -191,7 +191,7 @@ export default class JsonImport extends Plugin {
 			let exist = this.app.vault.getAbstractFileByPath(filename);
 			if (exist) await this.app.vault.delete(exist).catch(err => console.log(`app.vault.delete: ${err}`));
 
-			await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create: ${app}`));
+			await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create: ${err}`));
 		}
 	}
 }
