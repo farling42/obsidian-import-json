@@ -1,5 +1,6 @@
 # 0.13.0
 Support use of numbers as the name of each note (previously only strings were allowed).
+Allow multiple source files to be selected for conversion.
 
 # 0.12.0
 Switch to Budibase's fork of handlebars-helpers, since that builds properly.

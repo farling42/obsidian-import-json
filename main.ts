@@ -225,6 +225,7 @@ class FileSelectionModal extends Modal {
     	const inputDataFile = setting1.controlEl.createEl("input", {
       		attr: {
         		type: "file",
+				multiple: true,
         		accept: ".json,.csv,.tsv"
       		}
     	});
@@ -266,26 +267,33 @@ class FileSelectionModal extends Modal {
 		input5.textContent = "IMPORT";
 
     	input5.onclick = async () => {
+			// Check for a valid template file
+			const { files:templatefiles } = inputTemplateFile;
+			if (!templatefiles.length) {
+				new Notice("No Template file selected");
+				return;
+			}
+			// See if explicit data or files are being used
 			let srctext = inputJsonText.value;
-			let is_json:boolean;
 			if (srctext.length == 0) {
 				const { files:datafiles } = inputDataFile;
 				if (!datafiles.length) {
 				  	new Notice("No JSON file selected");
 				  	return;
 			  	}
-			  	srctext = await datafiles[0].text();
-				is_json = datafiles[0].name.endsWith(".json");
+				for (let i=0; i<datafiles.length; i++)
+				{
+					console.log(`Processing input file ${datafiles[i].name}`);
+			  		srctext = await datafiles[i].text();
+					let is_json:boolean = datafiles[i].name.endsWith(".json");
+					let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
+			  		await this.handler.call(this.caller, objdata, templatefiles[0], inputNameField.value, inputFolderName.value);
+				}
 			} else {
-				is_json = (srctext.startsWith('{') && srctext.endsWith('}'));
+				let is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
+				let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
+			  	await this.handler.call(this.caller, objdata, templatefiles[0], inputNameField.value, inputFolderName.value);
 			}
-			let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			const { files:templatefiles } = inputTemplateFile;
-			if (!templatefiles.length) {
-				new Notice("No Template file selected");
-				return;
-			}
-		  	await this.handler.call(this.caller, objdata, templatefiles[0], inputNameField.value, inputFolderName.value);
 			new Notice("Import Finished");
 	  		//this.close();
     	}
