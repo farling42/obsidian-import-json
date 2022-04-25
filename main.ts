@@ -4,7 +4,7 @@ import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian'
 const Papa = require('papaparse');
 
 let handlebars = require('handlebars');
-let hb_helpers = require('handlebars-helpers')({handlebars: handlebars});
+let hb_helpers = require('@budibase/handlebars-helpers')({handlebars: handlebars});
 let hb_utils   = require('handlebars-utils');
 
 // Remember to rename these classes and interfaces!
