@@ -84,11 +84,6 @@ export default class JsonImport extends Plugin {
 		let value   = arguments[0].toString();
 		for (let i=1; i<len; i+=2)
 		{
-			/*if (value == arguments[i])
-			{
-				value = arguments[i+1];
-				break;
-			}*/
 			let result = value.match(RegExp(`^${arguments[i]}$`, 'u'));
 			if (result)
 			{
@@ -131,6 +126,17 @@ export default class JsonImport extends Plugin {
 		return hb_utils.value([...orig], this, options);
 	}
 
+	// {{replacereg orig "regular expression" "replacement"}}
+	hb_replacereg() {
+		if (arguments.length != 4) return arguments[0];
+		let orig:string        = arguments[0];
+		let pattern:RegExp     = RegExp(arguments[1], 'g');
+		let replacement:string = arguments[2];
+		let options:any        = arguments[3];
+		let result:string      = pattern[Symbol.replace](orig, replacement);
+		return hb_utils.value(result, this, options);
+	}
+
 	async generateNotes(objdata:any, templatefile:File, jsonnamefield:string, topfolder:string) {
 		//console.log(`generateNotes(${jsonfile.path}, ${templatefile.path}, '${jsonnamefield}' , '${topfolder}' )`);
 
@@ -144,6 +150,7 @@ export default class JsonImport extends Plugin {
 		handlebars.registerHelper('table',     this.hb_table);
 		handlebars.registerHelper('substring', this.hb_substring);
 		handlebars.registerHelper('strarray',  this.hb_strarray);
+		handlebars.registerHelper('replacereg', this.hb_replacereg);
 
 		//console.log(`template = '${template}'`);
 
