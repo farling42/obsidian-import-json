@@ -72,3 +72,9 @@ This will return a string containing the part of 'string' starting at offset sta
 {{strarray "HAROLD"}}
 
 Converts the supplied string into an array of characters; primarily for use with #each to iterate over each letter in a string.
+
+### replacereg
+
+{{replacereg string regexp replace}}
+
+This searches 'string' for any matches with the regular expression 'regexp' string provided (do NOT use toRegExp, just provide the string), and replaces each occurrence with the 'replace' string (the 'replace' string can contain place markers from the regexp string).

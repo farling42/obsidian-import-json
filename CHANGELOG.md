@@ -1,3 +1,6 @@
+# 0.14.0
+Add 'replacereg' helper routine to support replacing regular expressions in strings.
+
 # 0.13.0
 Support use of numbers as the name of each note (previously only strings were allowed).
 Allow multiple source files to be selected for conversion.
