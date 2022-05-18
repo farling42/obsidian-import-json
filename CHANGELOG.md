@@ -1,3 +1,7 @@
+# 0.15.0
+Add an additional flag 'Allow paths in Note name'. When ticked, this option will allow "/" within the name field to be used as part of the file path, allowing for a hierarchy of folders to be created from a single json file.
+If not ticked, then the existing behaviour will be used where all "/" within the name field will be replaced as "_".
+
 # 0.14.0
 Add 'replacereg' helper routine to support replacing regular expressions in strings.
 
