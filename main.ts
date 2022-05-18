@@ -160,7 +160,7 @@ export default class JsonImport extends Plugin {
 		this.knownpaths.add(path);
 	}
 
-	async generateNotes(objdata:any, templatefile:File, jsonnamefield:string, jsonnamepathfield:boolean, topfolder:string) {
+	async generateNotes(objdata:any, templatefile:File, jsonnamefield:string, jsonnamepathfield:boolean, topfolder:string, sourcefile:string) {
 		//console.log(`generateNotes(${jsonfile.path}, ${templatefile.path}, '${jsonnamefield}' , '${topfolder}' )`);
 
 		//console.log(`json file = ${jsonfile.path}`);
@@ -200,6 +200,7 @@ export default class JsonImport extends Plugin {
 		// Save current settings
 		this.settings[SET_JSON_NAME]   = jsonnamefield;
 		this.settings[SET_FOLDER_NAME] = topfolder;
+		this.settings[SET_JSON_NAMEPATH] = jsonnamepathfield;
 		this.saveSettings();
 
 		// Ensure that the destination folder exists
@@ -214,6 +215,7 @@ export default class JsonImport extends Plugin {
 			if (typeof notefile === "number") notefile = notefile.toString();
 			if (!notefile || notefile.length == 0) continue;
 
+			if (sourcefile) row.SourceFilename = sourcefile;   // provide access to the filename from which the data was taken.
 			let body = template(row);   // convert HTML to markdown
 			if (body.contains("[object Object]")) {
 				console.log(`[object Object] appears in '${notefile}'`);
@@ -331,12 +333,12 @@ class FileSelectionModal extends Modal {
 			  		srctext = await datafiles[i].text();
 					let is_json:boolean = datafiles[i].name.endsWith(".json");
 					let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  		await this.handler.call(this.caller, objdata, templatefiles[0], inputNameField.value, inputNamePathField.checked, inputFolderName.value);
+			  		await this.handler.call(this.caller, objdata, templatefiles[0], inputNameField.value, inputNamePathField.checked, inputFolderName.value, datafiles[i].name);
 				}
 			} else {
 				let is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
 				let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  	await this.handler.call(this.caller, objdata, templatefiles[0], inputNameField.value, inputNamePathField.checked, inputFolderName.value);
+			  	await this.handler.call(this.caller, objdata, templatefiles[0], inputNameField.value, inputNamePathField.checked, inputFolderName.value, null);
 			}
 			new Notice("Import Finished");
 	  		//this.close();

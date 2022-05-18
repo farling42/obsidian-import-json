@@ -1,3 +1,9 @@
+# 0.16.0
+Add a new variable which is automatically added to the field names available for your handlebars template file:
+- "SourceFilename" contains the name of the data file from which the data is being read.
+
+Ensure that the state of the "Allow paths in Note name" tick box is saved, so that it retains the same state when the window is reopened.
+
 # 0.15.0
 Add an additional flag 'Allow paths in Note name'. When ticked, this option will allow "/" within the name field to be used as part of the file path, allowing for a hierarchy of folders to be created from a single json file.
 If not ticked, then the existing behaviour will be used where all "/" within the name field will be replaced as "_".
