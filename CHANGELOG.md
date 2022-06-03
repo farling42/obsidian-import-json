@@ -1,3 +1,11 @@
+# 0.17.0
+Add a new field "Field containing the data" which can be used to specify the specific part of the JSON file from which to read the data (normally an array). If left blank, then the top of
+the JSON file will be used if it is an array, otherwise the first array child of the top record in the JSON file will be used.
+
+If the field is not an array then the entire JSON data object tree (below "Field containing the data") will be passed for processing, so a single JSON record can be read without needing to modify the JSON file to contain an array.
+
+Both the "Field containing the data" and the "Field to use as Note name" can now contain a path to a field (field names separated by '.') instead of only allowing a direct field to be used.
+
 # 0.16.0
 Add a new variable which is automatically added to the field names available for your handlebars template file:
 - "SourceFilename" contains the name of the data file from which the data is being read.

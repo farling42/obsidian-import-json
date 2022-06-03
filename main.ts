@@ -11,6 +11,7 @@ let hb_utils   = require('handlebars-utils');
 
 const SET_JSON_FILE     = "jsonFile";
 const SET_TEMPLATE_FILE = "templateFile";
+const SET_TOP_FIELD     = "topField";
 const SET_JSON_NAME     = "jsonName";
 const SET_JSON_NAMEPATH = "jsonNamePath";
 const SET_FOLDER_NAME   = "folderName";
@@ -21,6 +22,7 @@ interface JsonImportSettings {
 	[SET_JSON_NAME]: string;
 	[SET_JSON_NAMEPATH]: boolean;
 	[SET_FOLDER_NAME]: string;
+	[SET_TOP_FIELD]: string;
 }
 
 const DEFAULT_SETTINGS: JsonImportSettings = {
@@ -28,7 +30,8 @@ const DEFAULT_SETTINGS: JsonImportSettings = {
 	[SET_TEMPLATE_FILE]: "rewards.md",
 	[SET_JSON_NAME]: "name",
 	[SET_JSON_NAMEPATH]: false,
-	[SET_FOLDER_NAME]: "Rewards"
+	[SET_FOLDER_NAME]: "Rewards",
+	[SET_TOP_FIELD]: ""
 }
 
 
@@ -43,6 +46,19 @@ function convertCsv(source: string)
 	return csv.data;
 }
 
+
+function objfield(srcobj:any, field:string)
+{
+	if (!field) return srcobj;
+	for (let part of field.split('.'))
+	{
+		srcobj = srcobj[part];
+		if (srcobj === undefined) break;
+	}
+	return srcobj;
+}
+
+
 export default class JsonImport extends Plugin {
 	settings: JsonImportSettings;
 	knownpaths: Set<string>;   // The paths which we know exist
@@ -56,7 +72,7 @@ export default class JsonImport extends Plugin {
 			// Called when the user clicks the icon.
 			const modal = new FileSelectionModal(this.app);
 			modal.setHandler(this, this.generateNotes);
-			modal.setDefaults(this.settings[SET_JSON_FILE], this.settings[SET_TEMPLATE_FILE], this.settings[SET_JSON_NAME], this.settings[SET_JSON_NAMEPATH], this.settings[SET_FOLDER_NAME]);
+			modal.setDefaults(this.settings[SET_JSON_FILE], this.settings[SET_TEMPLATE_FILE], this.settings[SET_TOP_FIELD], this.settings[SET_JSON_NAME], this.settings[SET_JSON_NAMEPATH], this.settings[SET_FOLDER_NAME]);
 			modal.open();
 		});
 		// Perform additional things with the ribbon
@@ -160,8 +176,8 @@ export default class JsonImport extends Plugin {
 		this.knownpaths.add(path);
 	}
 
-	async generateNotes(objdata:any, templatefile:File, jsonnamefield:string, jsonnamepathfield:boolean, topfolder:string, sourcefile:string) {
-		//console.log(`generateNotes(${jsonfile.path}, ${templatefile.path}, '${jsonnamefield}' , '${topfolder}' )`);
+	async generateNotes(objdata:any, templatefile:File, keyfield:string, jsonnamefield:string, jsonnamepathfield:boolean, topfolder:string, sourcefile:string) {
+		console.log(`generateNotes('${templatefile}', '${keyfield}', '${jsonnamefield}' , '${jsonnamepathfield}', '${topfolder}', '${sourcefile}' )`);
 
 		//console.log(`json file = ${jsonfile.path}`);
 		//console.log(`json text = '${objdata}'`);
@@ -180,24 +196,33 @@ export default class JsonImport extends Plugin {
 		//console.log(`template = '${template}'`);
 
 		// Firstly, convert JSON to an object
-		let topobj:any;
-		if (Array.isArray(objdata))
-			topobj = objdata;
-		else {
-			let keys = Object.keys(objdata);
-			if (keys.length!=1) {
-				new Notice("JSON doesn't have a top-level array");
+		let topobj:any=undefined;
+		if (keyfield)
+		{
+			topobj = objfield(objdata, keyfield);
+			if (!topobj) 
+			{
+				new Notice(`Key '${keyfield}' does not exist in the source file`)
 				return;
 			}
-			topobj = objdata[keys[0]];
+			if (!Array.isArray(topobj))
+				topobj = [ topobj ];
 		}
-
-		if (!Array.isArray(topobj)) {
-			new Notice("JSON file does not contain an array!");
-			return;
+		else if (Array.isArray(objdata))
+			topobj = objdata;
+		else {
+			for (let key of Object.keys(objdata))
+				if (Array.isArray(objdata[key]))
+				{
+					topobj = objdata[key];
+					break;
+				}
+			// Not an array, so simply treat the entire file as a single object
+			if (!topobj) topobj = [ objdata ];
 		}
 
 		// Save current settings
+		this.settings[SET_TOP_FIELD]  = keyfield;
 		this.settings[SET_JSON_NAME]   = jsonnamefield;
 		this.settings[SET_FOLDER_NAME] = topfolder;
 		this.settings[SET_JSON_NAMEPATH] = jsonnamepathfield;
@@ -210,13 +235,19 @@ export default class JsonImport extends Plugin {
 		//}
 
 		for (let row of topobj.values()) {
-			let notefile = row[jsonnamefield];
+			let notefile = objfield(row, jsonnamefield);
 			// Ignore lines with an empty name field
 			if (typeof notefile === "number") notefile = notefile.toString();
 			if (!notefile || notefile.length == 0) continue;
 
 			if (sourcefile) row.SourceFilename = sourcefile;   // provide access to the filename from which the data was taken.
-			let body = template(row);   // convert HTML to markdown
+			let body:any;
+			try {
+				body = template(row);   // convert HTML to markdown
+			} catch (err) {
+				console.error(`${err.message}\nFOR ROW:\n${row}`)
+				continue;
+			}
 			if (body.contains("[object Object]")) {
 				console.log(`[object Object] appears in '${notefile}'`);
 				new Notice(`Incomplete conversion for '${notefile}'. Look for '[object Object]' (also reported in console)`);
@@ -238,6 +269,7 @@ class FileSelectionModal extends Modal {
 	handler: Function;
 	default_jsonfile: string;
 	default_templfile: string;
+	default_topfield: string;
 	default_jsonname:  string;
 	default_jsonnamepath:  boolean;
 	default_foldername: string;
@@ -250,9 +282,10 @@ class FileSelectionModal extends Modal {
 		this.caller  = caller;
 		this.handler = handler;
 	}
-	setDefaults(jsonfile:string, templatefile:string, jsonname:string, jsonnamepath:boolean, foldername:string) {
+	setDefaults(jsonfile:string, templatefile:string, topfield:string, jsonname:string, jsonnamepath:boolean, foldername:string) {
 		this.default_jsonfile = jsonfile;
 		this.default_templfile = templatefile;
+		this.default_topfield = topfield;
 		this.default_jsonname  = jsonname;
 		this.default_jsonnamepath  = jsonnamepath;
 		this.default_foldername = foldername;
@@ -283,6 +316,14 @@ class FileSelectionModal extends Modal {
       		}
     	});
 		//input2.value = this.default_templfile;
+	
+	    const setting3b = new Setting(this.contentEl).setName("Field containing the data").setDesc("The field containing the array of data (leave blank to use entire file)");
+    	const keyField = setting3b.controlEl.createEl("input", {
+      		attr: {
+        		type: "string"
+      		}
+    	});
+		keyField.value = this.default_topfield;
 	
 	    const setting3 = new Setting(this.contentEl).setName("Field to use as Note name").setDesc("Field in each row of the JSON/CSV data to be used for the note name");
     	const inputNameField = setting3.controlEl.createEl("input", {
@@ -333,12 +374,12 @@ class FileSelectionModal extends Modal {
 			  		srctext = await datafiles[i].text();
 					let is_json:boolean = datafiles[i].name.endsWith(".json");
 					let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  		await this.handler.call(this.caller, objdata, templatefiles[0], inputNameField.value, inputNamePathField.checked, inputFolderName.value, datafiles[i].name);
+			  		await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, inputNamePathField.checked, inputFolderName.value, datafiles[i].name);
 				}
 			} else {
 				let is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
 				let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  	await this.handler.call(this.caller, objdata, templatefiles[0], inputNameField.value, inputNamePathField.checked, inputFolderName.value, null);
+			  	await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, inputNamePathField.checked, inputFolderName.value, null);
 			}
 			new Notice("Import Finished");
 	  		//this.close();
