@@ -36,7 +36,7 @@ For CSV decoding, the list of detected delimiter, linebreak, and fields (column 
 
 ### Additional Handlebar Functions
 
-When building handlebars template files, you will have access to all the [handlebars-helpers](https://github.com/helpers/handlebars-helpers/)
+When building handlebars template files, you will have access to all the [handlebars-helpers](https://github.com/Budibase/handlebars-helpers)
 
 ### New Handlebar Functions
 
