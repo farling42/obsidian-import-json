@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.18.0
+
+Add the 'strsplit' function so that a single string can be split into an array based on a single string or a regular expression.
+
 ## 0.17.0
 
 Add a new field "Field containing the data" which can be used to specify the specific part of the JSON file from which to read the data (normally an array). If left blank, then the top of
