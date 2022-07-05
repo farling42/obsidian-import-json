@@ -8,7 +8,7 @@
 
 ## Instructions
 
-This plug-in provides you with the tools to import your favourite JSON and CSV tables.
+This plug-in provides you with the tools to import your favourite JSON and CSV table and create a set of Obsidian notes from that table. One note will be created for each row in a CSV file, or each object in a named array within the JSON file.
 
 A magnifying-glass icon will appear in the left margin when this plug-in is enabled.
 
@@ -36,7 +36,7 @@ For CSV decoding, the list of detected delimiter, linebreak, and fields (column 
 
 ### Additional Handlebar Functions
 
-When building handlebars template files, you will have access to all the [handlebars-helpers](https://github.com/helpers/handlebars-helpers/)
+When building handlebars template files, you will have access to all the [handlebars-helpers](https://github.com/Budibase/handlebars-helpers)
 
 ### New Handlebar Functions
 
