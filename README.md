@@ -81,3 +81,11 @@ Converts the supplied string into an array of characters; primarily for use with
 {{replacereg string regexp replace}}
 
 This searches 'string' for any matches with the regular expression 'regexp' string provided (do NOT use toRegExp, just provide the string), and replaces each occurrence with the 'replace' string (the 'replace' string can contain place markers from the regexp string).
+
+### strsplit
+
+{{strsplit string separator}}
+
+This splits 'string' at all occurrences of 'separator' (which may be a Regex) and returns an array containing all the parts of the string.
+
+If the separator is a regex then you can include () around the regex to include the separator in the array of output strings (note that the separator is a separate element in the array).

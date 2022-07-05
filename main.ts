@@ -158,6 +158,17 @@ export default class JsonImport extends Plugin {
 		return hb_utils.value(result, this, options);
 	}
 
+	// {{strsplit string match}}
+	// match can be a string or a RegEx
+	hb_strsplit() {
+		if (arguments.length != 3) return arguments[0];
+		let orig:string        = arguments[0];
+		let pattern:RegExp     = arguments[1];  // string or RegExp
+		let options:any        = arguments[2];
+		let result:any         = orig.split(pattern);
+		return hb_utils.value(result, this, options);
+	}
+
 	/**
 	 * Check if the path for filename exists, if it doesn't then create it
 	 * @param filename 
@@ -192,6 +203,7 @@ export default class JsonImport extends Plugin {
 		handlebars.registerHelper('substring', this.hb_substring);
 		handlebars.registerHelper('strarray',  this.hb_strarray);
 		handlebars.registerHelper('replacereg', this.hb_replacereg);
+		handlebars.registerHelper('strsplit',   this.hb_strsplit);
 
 		//console.log(`template = '${template}'`);
 
