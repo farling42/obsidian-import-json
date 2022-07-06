@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.19.0
+
+Fix version numbering between issues!
+
 ## 0.18.0
 
 Add the 'strsplit' function so that a single string can be split into an array based on a single string or a regular expression.
