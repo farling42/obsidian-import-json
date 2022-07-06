@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.20.0
+
+Provide additional configuration which allows a prefix and/or suffix to be used in the filename either side of value read from the Note name field.
+
 ## 0.19.0
 
 Fix version numbering between issues!

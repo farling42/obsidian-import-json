@@ -15,6 +15,8 @@ const SET_TOP_FIELD     = "topField";
 const SET_JSON_NAME     = "jsonName";
 const SET_JSON_NAMEPATH = "jsonNamePath";
 const SET_FOLDER_NAME   = "folderName";
+const SET_NOTE_PREFIX   = "notePrefix";
+const SET_NOTE_SUFFIX   = "noteSuffix";
 
 interface JsonImportSettings {
 	[SET_JSON_FILE]: string;
@@ -23,6 +25,8 @@ interface JsonImportSettings {
 	[SET_JSON_NAMEPATH]: boolean;
 	[SET_FOLDER_NAME]: string;
 	[SET_TOP_FIELD]: string;
+	[SET_NOTE_PREFIX]: string;
+	[SET_NOTE_SUFFIX]: string;
 }
 
 const DEFAULT_SETTINGS: JsonImportSettings = {
@@ -31,7 +35,9 @@ const DEFAULT_SETTINGS: JsonImportSettings = {
 	[SET_JSON_NAME]: "name",
 	[SET_JSON_NAMEPATH]: false,
 	[SET_FOLDER_NAME]: "Rewards",
-	[SET_TOP_FIELD]: ""
+	[SET_TOP_FIELD]: "",
+	[SET_NOTE_PREFIX]: "",
+	[SET_NOTE_SUFFIX]: ""
 }
 
 
@@ -72,7 +78,7 @@ export default class JsonImport extends Plugin {
 			// Called when the user clicks the icon.
 			const modal = new FileSelectionModal(this.app);
 			modal.setHandler(this, this.generateNotes);
-			modal.setDefaults(this.settings[SET_JSON_FILE], this.settings[SET_TEMPLATE_FILE], this.settings[SET_TOP_FIELD], this.settings[SET_JSON_NAME], this.settings[SET_JSON_NAMEPATH], this.settings[SET_FOLDER_NAME]);
+			modal.setDefaults(this.settings[SET_JSON_FILE], this.settings[SET_TEMPLATE_FILE], this.settings[SET_TOP_FIELD], this.settings[SET_JSON_NAME], this.settings[SET_NOTE_PREFIX],  this.settings[SET_NOTE_SUFFIX],  this.settings[SET_JSON_NAMEPATH], this.settings[SET_FOLDER_NAME]);
 			modal.open();
 		});
 		// Perform additional things with the ribbon
@@ -187,8 +193,8 @@ export default class JsonImport extends Plugin {
 		this.knownpaths.add(path);
 	}
 
-	async generateNotes(objdata:any, templatefile:File, keyfield:string, jsonnamefield:string, jsonnamepathfield:boolean, topfolder:string, sourcefile:string) {
-		console.log(`generateNotes('${templatefile}', '${keyfield}', '${jsonnamefield}' , '${jsonnamepathfield}', '${topfolder}', '${sourcefile}' )`);
+	async generateNotes(objdata:any, templatefile:File, keyfield:string, jsonnamefield:string, noteprefix:string, notesuffix:string, jsonnamepathfield:boolean, topfolder:string, sourcefile:string) {
+		console.log(`generateNotes('${templatefile}', '${keyfield}', '${jsonnamefield}' , '${noteprefix}', '${notesuffix}' , '${jsonnamepathfield}', '${topfolder}', '${sourcefile}' )`);
 
 		//console.log(`json file = ${jsonfile.path}`);
 		//console.log(`json text = '${objdata}'`);
@@ -237,6 +243,8 @@ export default class JsonImport extends Plugin {
 		this.settings[SET_TOP_FIELD]  = keyfield;
 		this.settings[SET_JSON_NAME]   = jsonnamefield;
 		this.settings[SET_FOLDER_NAME] = topfolder;
+		this.settings[SET_NOTE_PREFIX] = noteprefix;
+		this.settings[SET_NOTE_SUFFIX] = notesuffix;
 		this.settings[SET_JSON_NAMEPATH] = jsonnamepathfield;
 		this.saveSettings();
 
@@ -251,6 +259,8 @@ export default class JsonImport extends Plugin {
 			// Ignore lines with an empty name field
 			if (typeof notefile === "number") notefile = notefile.toString();
 			if (!notefile || notefile.length == 0) continue;
+			// Add prefix and suffix to filename
+			notefile = noteprefix + notefile + notesuffix;
 
 			if (sourcefile) row.SourceFilename = sourcefile;   // provide access to the filename from which the data was taken.
 			let body:any;
@@ -283,6 +293,8 @@ class FileSelectionModal extends Modal {
 	default_templfile: string;
 	default_topfield: string;
 	default_jsonname:  string;
+	default_note_prefix: string;
+	default_note_suffix: string;
 	default_jsonnamepath:  boolean;
 	default_foldername: string;
 
@@ -294,11 +306,13 @@ class FileSelectionModal extends Modal {
 		this.caller  = caller;
 		this.handler = handler;
 	}
-	setDefaults(jsonfile:string, templatefile:string, topfield:string, jsonname:string, jsonnamepath:boolean, foldername:string) {
+	setDefaults(jsonfile:string, templatefile:string, topfield:string, jsonname:string, noteprefix:string, notesuffix:string, jsonnamepath:boolean, foldername:string) {
 		this.default_jsonfile = jsonfile;
 		this.default_templfile = templatefile;
 		this.default_topfield = topfield;
 		this.default_jsonname  = jsonname;
+		this.default_note_prefix = noteprefix;
+		this.default_note_suffix = notesuffix;
 		this.default_jsonnamepath  = jsonnamepath;
 		this.default_foldername = foldername;
 	}
@@ -324,7 +338,8 @@ class FileSelectionModal extends Modal {
     	const inputTemplateFile = setting2.controlEl.createEl("input", {
       		attr: {
         		type: "file",
-        		accept: ".md"
+        		accept: ".md",
+				required: true
       		}
     	});
 		//input2.value = this.default_templfile;
@@ -340,10 +355,30 @@ class FileSelectionModal extends Modal {
 	    const setting3 = new Setting(this.contentEl).setName("Field to use as Note name").setDesc("Field in each row of the JSON/CSV data to be used for the note name");
     	const inputNameField = setting3.controlEl.createEl("input", {
       		attr: {
-        		type: "string"
+        		type: "string",
+				required: true
       		}
     	});
 		inputNameField.value = this.default_jsonname;
+	
+	    const settingPrefix = new Setting(this.contentEl).setName("Note name prefix/suffix").setDesc("Optional prefix/suffix to be added either side of the value from the above Note name field");
+    	const notePrefixField = settingPrefix.controlEl.createEl("input", {
+      		attr: {
+        		type: "string",
+				placeholder: "prefix",
+				size: 10
+      		}
+    	});
+		notePrefixField.value = this.default_note_prefix;
+
+    	const noteSuffixField = settingPrefix.controlEl.createEl("input", {
+      		attr: {
+        		type: "string",
+				placeholder: "suffix",
+				size: 10
+      		}
+    	});
+		noteSuffixField.value = this.default_note_suffix;
 	
 	    const setting3a = new Setting(this.contentEl).setName("Allow paths in Note name").setDesc("Allow / in the Note name field to be used to create folders (when not selected / will be replaced by _ as part of note name)");
     	const inputNamePathField = setting3a.controlEl.createEl("input", {
@@ -386,12 +421,12 @@ class FileSelectionModal extends Modal {
 			  		srctext = await datafiles[i].text();
 					let is_json:boolean = datafiles[i].name.endsWith(".json");
 					let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  		await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, inputNamePathField.checked, inputFolderName.value, datafiles[i].name);
+			  		await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, notePrefixField.value, noteSuffixField.value, inputNamePathField.checked, inputFolderName.value, datafiles[i].name);
 				}
 			} else {
 				let is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
 				let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  	await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, inputNamePathField.checked, inputFolderName.value, null);
+			  	await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, notePrefixField.value, noteSuffixField.value, inputNamePathField.checked, inputFolderName.value, null);
 			}
 			new Notice("Import Finished");
 	  		//this.close();
