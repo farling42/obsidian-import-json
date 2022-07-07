@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.21.0
+
+Add an option to NOT overwrite existing Notes (the entries in the JSON/CSV file for those notes will be ignored).
+
 ## 0.20.0
 
 Provide additional configuration which allows a prefix and/or suffix to be used in the filename either side of value read from the Note name field.
