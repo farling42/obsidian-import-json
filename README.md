@@ -32,7 +32,10 @@ A notice will appear for each such note, but opening Obsidian's dev window (on M
 
 The CSV decoder should auto-detect the actual separator from any of: comma, tab, pipe, semicolon, ASCII record separator (30), ASCII unit separator (31). (Blank lines in the CSV file will be ignored.)
 
+Ensure that column names in CSV files contain only characters which make valid JSON variable/field names as required by Handlebars (e.g. no spaces or periods).
+
 For CSV decoding, the list of detected delimiter, linebreak, and fields (column names) are displayed in the Obsidian Developer Console.
+
 
 ### Additional Handlebar Functions
 
