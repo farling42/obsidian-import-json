@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.22.0
+
+The handlebars helper function {{setVar varName varValue}} has been added to allow creation of local variables. Note that usually varName is a string, so the variable name will need to be wrapped in double-quote marks. The created variable can be later referenced using {{varName}} or {{@root.varName}}
+
 ## 0.21.0
 
 Add an option to NOT overwrite existing Notes (the entries in the JSON/CSV file for those notes will be ignored).

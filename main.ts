@@ -178,6 +178,18 @@ export default class JsonImport extends Plugin {
 		return hb_utils.value(result, this, options);
 	}
 
+	// {{setVar varname varvalue}}
+	// Sets a local variable for user later in the handlebars template by using @root.varname
+	// The {{setVar ...}} expression does not put any string into the output.
+	hb_setvar() {
+		if (arguments.length != 3) return arguments[0];
+		let varName:string  = arguments[0];
+		let varValue:string = arguments[1];
+		let options:any     = arguments[2];
+		options.data.root[varName] = varValue;
+		return hb_utils.value("");
+	}
+
 	/**
 	 * Check if the path for filename exists, if it doesn't then create it
 	 * @param filename 
@@ -213,6 +225,7 @@ export default class JsonImport extends Plugin {
 		handlebars.registerHelper('strarray',  this.hb_strarray);
 		handlebars.registerHelper('replacereg', this.hb_replacereg);
 		handlebars.registerHelper('strsplit',   this.hb_strsplit);
+		handlebars.registerHelper('setvar',     this.hb_setvar);
 
 		//console.log(`template = '${template}'`);
 

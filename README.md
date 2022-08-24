@@ -92,3 +92,13 @@ This searches 'string' for any matches with the regular expression 'regexp' stri
 This splits 'string' at all occurrences of 'separator' (which may be a Regex) and returns an array containing all the parts of the string.
 
 If the separator is a regex then you can include () around the regex to include the separator in the array of output strings (note that the separator is a separate element in the array).
+
+### setvar
+
+{{setvar varName varValue}}
+
+This assigns varValue to a local variable called varName (it will be created if it doesn't already exist). Usually varName will be a string, so it will need to be wrapped in double-quote marks.
+
+The variable can be used later in the handlebars template using the expression {{varName}}
+
+The {{setVar...}} function itself does not put any string into the generated output.
