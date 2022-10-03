@@ -2,7 +2,7 @@
 
 ## 0.22.0
 
-The handlebars helper function `{{setVar _varName_ _varValue_}}` has been added to allow creation of local variables. Note that usually varName is a string, so the variable name will need to be wrapped in double-quote marks. The created variable can be later referenced using {{varName}} or {{@root.varName}}
+The handlebars helper function `{{ setVar *varName* *varValue* }}` has been added to allow creation of local variables. Note that usually varName is a string, so the variable name will need to be wrapped in double-quote marks. The created variable can be later referenced using {{varName}} or {{@root.varName}}
 
 ## 0.21.0
 
