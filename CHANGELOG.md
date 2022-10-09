@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.23.0
+
+The {{table ...}} helper function now explicitly checks for the first parameter being undefined or null in order to determine if the table search should be attempted (this will allow boolean false or numberic 0 to be valid strings for table lookups).
+
 ## 0.22.0
 
 The handlebars helper function {{setVar varName varValue}} has been added to allow creation of local variables. Note that usually varName is a string, so the variable name will need to be wrapped in double-quote marks. The created variable can be later referenced using {{varName}} or {{@root.varName}}

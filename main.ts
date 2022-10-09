@@ -107,8 +107,8 @@ export default class JsonImport extends Plugin {
 	
 	hb_table() {
 		// HB:  {{ table string val1 result1 val2 result2 val3 result3 ... }}
-		if (!arguments[0]) return arguments[0];
 		if (arguments.length < 4) return "";  // string val1 result1 options
+		if (arguments[0] == undefined || arguments[0] == null) return arguments[0];
 		let len     = arguments.length-1;
 		let options = arguments[len];
 		let value   = arguments[0].toString();
