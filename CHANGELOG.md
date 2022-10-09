@@ -1,6 +1,6 @@
 # ChangeLog
 
-## 0.23.0
+## 0.24.0
 
 The {{table ...}} helper function now explicitly checks for the first parameter being undefined or null in order to determine if the table search should be attempted (this will allow boolean false or numberic 0 to be valid strings for table lookups).
 
