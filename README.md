@@ -73,19 +73,19 @@ This will return a string containing the part of 'string' starting at offset sta
 {{!-- will return the string "OL", since 3 corresponds to the fourth letter in the string, and 2 refers to the number of characters to return starting at that position. --}}
 ```
 
-### strarray
+#### strarray
 
 {{strarray "HAROLD"}}
 
 Converts the supplied string into an array of characters; primarily for use with #each to iterate over each letter in a string.
 
-### replacereg
+#### replacereg
 
 {{replacereg string regexp replace}}
 
 This searches 'string' for any matches with the regular expression 'regexp' string provided (do NOT use toRegExp, just provide the string), and replaces each occurrence with the 'replace' string (the 'replace' string can contain place markers from the regexp string).
 
-### strsplit
+#### strsplit
 
 {{strsplit string separator}}
 
@@ -93,7 +93,7 @@ This splits 'string' at all occurrences of 'separator' (which may be a Regex) an
 
 If the separator is a regex then you can include () around the regex to include the separator in the array of output strings (note that the separator is a separate element in the array).
 
-### setvar
+#### setvar
 
 {{setvar varName varValue}}
 
