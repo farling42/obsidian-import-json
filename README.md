@@ -20,6 +20,8 @@ Clicking the icon will open a dialog window with four fields:
 
 - "JSON name field" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note.
 
+- "Field containing the data" is used with a JSON file if a child of the top object should be used as the source of data instead of the very top of the JSON object.
+
 - "Set Folder" allows you to set the top-level folder name within your Vault into which all the notes will be placed.
 
 When the IMPORT button is pressed then the JSON/CSV file will be read and all the notes created.

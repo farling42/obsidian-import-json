@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.25.0
+
+When processing a JSON file, if "Field containing the data" is left blank, then it will only check the very top of the JSON object tree to see if it is an array or not. (It will no longer search for the first child field which is an array.)
+
 ## 0.24.0
 
 The {{table ...}} helper function now explicitly checks for the first parameter being undefined or null in order to determine if the table search should be attempted (this will allow boolean false or numberic 0 to be valid strings for table lookups).

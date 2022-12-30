@@ -242,18 +242,8 @@ export default class JsonImport extends Plugin {
 			if (!Array.isArray(topobj))
 				topobj = [ topobj ];
 		}
-		else if (Array.isArray(objdata))
-			topobj = objdata;
-		else {
-			for (let key of Object.keys(objdata))
-				if (Array.isArray(objdata[key]))
-				{
-					topobj = objdata[key];
-					break;
-				}
-			// Not an array, so simply treat the entire file as a single object
-			if (!topobj) topobj = [ objdata ];
-		}
+		else
+			topobj = Array.isArray(objdata) ? objdata : [ objdata ];
 
 		// Save current settings
 		this.settings[SET_TOP_FIELD]  = keyfield;
