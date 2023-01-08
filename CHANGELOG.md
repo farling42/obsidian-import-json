@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.26.0
+
+Allow users to specify a specific note which will contain some additional handlebars helpers. See additional section in the README file.
+
 ## 0.25.0
 
 When processing a JSON file, if "Field containing the data" is left blank, then it will only check the very top of the JSON object tree to see if it is an array or not. (It will no longer search for the first child field which is an array.)

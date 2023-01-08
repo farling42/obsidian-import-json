@@ -18,6 +18,8 @@ Clicking the icon will open a dialog window with four fields:
 
 - "Choose TEMPLATE File" will allow you to choose any .md file, which should be a [Handlebars template file](https://handlebarsjs.com/guide/).
 
+- "Choose HELPER File" will allow you to specify a separate .js file which contains additional handlebars helper functions (see below).
+
 - "JSON name field" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note.
 
 - "Field containing the data" is used with a JSON file if a child of the top object should be used as the source of data instead of the very top of the JSON object.
@@ -104,3 +106,27 @@ This assigns varValue to a local variable called varName (it will be created if 
 The variable can be used later in the handlebars template using the expression {{varName}}
 
 The {{setVar...}} function itself does not put any string into the generated output.
+
+### Adding your own Handlebars Helpers
+
+You can specify an optional "HELPER" file, which should contain some javascript containing your additional handlebars helpers. See <https://handlebarsjs.com/api-reference/helpers.html> for more information.
+
+An example helpers.js is:
+
+```js
+function hb_farling() {
+    let orig = arguments[0];
+    orig += ' from Helper';
+    return orig;
+}
+
+handlebars.registerHelper('farling', hb_farling);
+```
+
+The important component is to call `handlebars.registerHelper` with the name of the helper and the function that is implementing the helper. It is a good practise to prefix the name of the helper functions with `hb_` to ensure that they don't conflict with other function names in the module. (Note that it is YOUR responsibility to ensure that the javascript in the helper functions don't break your Obsidian vault.)
+
+which would allow the following to be specified in your template MD file:
+
+```md
+{{farling 'Some Text'}}
+```

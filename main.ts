@@ -18,6 +18,7 @@ const SET_FOLDER_NAME   = "folderName";
 const SET_NOTE_PREFIX   = "notePrefix";
 const SET_NOTE_SUFFIX   = "noteSuffix";
 const SET_OVERWRITE     = "overwrite";
+const SET_HELPER_FILE   = "helperFile";
 
 interface JsonImportSettings {
 	[SET_JSON_FILE]: string;
@@ -29,6 +30,7 @@ interface JsonImportSettings {
 	[SET_NOTE_PREFIX]: string;
 	[SET_NOTE_SUFFIX]: string;
 	[SET_OVERWRITE]: boolean;
+	[SET_HELPER_FILE]: string;
 }
 
 const DEFAULT_SETTINGS: JsonImportSettings = {
@@ -40,7 +42,8 @@ const DEFAULT_SETTINGS: JsonImportSettings = {
 	[SET_TOP_FIELD]: "",
 	[SET_NOTE_PREFIX]: "",
 	[SET_NOTE_SUFFIX]: "",
-	[SET_OVERWRITE]: true
+	[SET_OVERWRITE]: true,
+	[SET_HELPER_FILE]: ""
 }
 
 
@@ -81,7 +84,9 @@ export default class JsonImport extends Plugin {
 			// Called when the user clicks the icon.
 			const modal = new FileSelectionModal(this.app);
 			modal.setHandler(this, this.generateNotes);
-			modal.setDefaults(this.settings[SET_JSON_FILE], this.settings[SET_TEMPLATE_FILE], this.settings[SET_TOP_FIELD], this.settings[SET_JSON_NAME], this.settings[SET_NOTE_PREFIX],  this.settings[SET_NOTE_SUFFIX], this.settings[SET_JSON_NAMEPATH],  this.settings[SET_OVERWRITE], this.settings[SET_FOLDER_NAME]);
+			modal.setDefaults(this.settings[SET_JSON_FILE], this.settings[SET_TEMPLATE_FILE], this.settings[SET_TOP_FIELD], this.settings[SET_JSON_NAME], 
+				this.settings[SET_NOTE_PREFIX],  this.settings[SET_NOTE_SUFFIX], this.settings[SET_JSON_NAMEPATH],  
+				this.settings[SET_OVERWRITE], this.settings[SET_FOLDER_NAME], this.settings[SET_HELPER_FILE]);
 			modal.open();
 		});
 		// Perform additional things with the ribbon
@@ -208,8 +213,9 @@ export default class JsonImport extends Plugin {
 		this.knownpaths.add(path);
 	}
 
-	async generateNotes(objdata:any, templatefile:File, keyfield:string, jsonnamefield:string, noteprefix:string, notesuffix:string, jsonnamepathfield:boolean, overwrite:boolean, topfolder:string, sourcefile:string) {
-		console.log(`generateNotes('${templatefile}', '${keyfield}', '${jsonnamefield}', '${noteprefix}', '${notesuffix}', path='${jsonnamepathfield}', ovewrite='${overwrite}', '${topfolder}', '${sourcefile}' )`);
+	async generateNotes(objdata:any, templatefile:File, keyfield:string, jsonnamefield:string, noteprefix:string, notesuffix:string, 
+		jsonnamepathfield:boolean, overwrite:boolean, topfolder:string, sourcefile:string, helperfile:File) {
+		console.log(`generateNotes('${templatefile}', '${keyfield}', '${jsonnamefield}', '${noteprefix}', '${notesuffix}', path='${jsonnamepathfield}', ovewrite='${overwrite}', '${topfolder}', '${sourcefile}', '${helperfile}' )`);
 
 		//console.log(`json file = ${jsonfile.path}`);
 		//console.log(`json text = '${objdata}'`);
@@ -226,6 +232,10 @@ export default class JsonImport extends Plugin {
 		handlebars.registerHelper('replacereg', this.hb_replacereg);
 		handlebars.registerHelper('strsplit',   this.hb_strsplit);
 		handlebars.registerHelper('setvar',     this.hb_setvar);
+		if (helperfile) {
+			let initJsonHelpers = new Function('handlebars', await helperfile.text());
+			if (initJsonHelpers) initJsonHelpers(handlebars);
+		}
 
 		//console.log(`template = '${template}'`);
 
@@ -311,6 +321,7 @@ class FileSelectionModal extends Modal {
 	default_jsonnamepath:  boolean;
 	default_overwrite: boolean;
 	default_foldername: string;
+	default_helperfile: string;
 
 	constructor(app: App) {
 		super(app);
@@ -320,7 +331,8 @@ class FileSelectionModal extends Modal {
 		this.caller  = caller;
 		this.handler = handler;
 	}
-	setDefaults(jsonfile:string, templatefile:string, topfield:string, jsonname:string, noteprefix:string, notesuffix:string, jsonnamepath:boolean, overwrite:boolean, foldername:string) {
+	setDefaults(jsonfile:string, templatefile:string, topfield:string, jsonname:string, noteprefix:string, notesuffix:string, 
+		jsonnamepath:boolean, overwrite:boolean, foldername:string, helperfile:string) {
 		this.default_jsonfile = jsonfile;
 		this.default_templfile = templatefile;
 		this.default_topfield = topfield;
@@ -330,6 +342,7 @@ class FileSelectionModal extends Modal {
 		this.default_jsonnamepath  = jsonnamepath;
 		this.default_foldername = foldername;
 		this.default_overwrite = overwrite;
+		this.default_helperfile = helperfile;
 	}
 
 	onOpen() {
@@ -358,7 +371,16 @@ class FileSelectionModal extends Modal {
       		}
     	});
 		//input2.value = this.default_templfile;
-	
+
+	    const setting2a = new Setting(this.contentEl).setName("Choose HELPERS File").setDesc("Optionally select a file containing some Handlebars Helpers functions");
+    	const inputHelperFile = setting2a.controlEl.createEl("input", {
+      		attr: {
+        		type: "file",
+        		accept: ".js"
+      		}
+    	});
+		//input2a.value = this.default_helperfile;
+		
 	    const setting3b = new Setting(this.contentEl).setName("Field containing the data").setDesc("The field containing the array of data (leave blank to use entire file)");
     	const keyField = setting3b.controlEl.createEl("input", {
       		attr: {
@@ -430,6 +452,8 @@ class FileSelectionModal extends Modal {
 				new Notice("No Template file selected");
 				return;
 			}
+			const { files:helperfile } = inputHelperFile;
+
 			// See if explicit data or files are being used
 			let srctext = inputJsonText.value;
 			if (srctext.length == 0) {
@@ -444,12 +468,16 @@ class FileSelectionModal extends Modal {
 			  		srctext = await datafiles[i].text();
 					let is_json:boolean = datafiles[i].name.endsWith(".json");
 					let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  		await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, notePrefixField.value, noteSuffixField.value, inputNamePathField.checked, inputOverwriteField.checked, inputFolderName.value, datafiles[i].name);
+			  		await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, notePrefixField.value, 
+						noteSuffixField.value, inputNamePathField.checked, inputOverwriteField.checked, inputFolderName.value, datafiles[i].name,
+						helperfile?.[0]);
 				}
 			} else {
 				let is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
 				let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  	await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, notePrefixField.value, noteSuffixField.value, inputNamePathField.checked, inputOverwriteField.checked, inputFolderName.value, null);
+			  	await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, notePrefixField.value, 
+					noteSuffixField.value, inputNamePathField.checked, inputOverwriteField.checked, inputFolderName.value, null,
+					helperfile?.[0]);
 			}
 			new Notice("Import Finished");
 	  		//this.close();
