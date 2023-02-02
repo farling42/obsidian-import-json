@@ -106,7 +106,7 @@ export default class JsonImport extends Plugin {
 	}
 
 	validFilename(name:string) {
-		const regexp = this.namepath ? /[<>:"\\|?\*]/ : /[<>:"/\\|?\*]/;
+		const regexp = this.namepath ? /[<>:"\\|?\*]/g : /[<>:"/\\|?\*]/g;
 		return name.replace(regexp,'_');
 	}
 	

@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.26.1
+
+Fix an issue where only the first '/' was replaced when 'Allow paths in Note name' was not selected. This fix also means that all invalid characters in the generated file name will be correctly replaced by '_' (rather than only the first occurrence).
+
 ## 0.26.0
 
 Allow users to specify a specific note which will contain some additional handlebars helpers. See additional section in the README file.
