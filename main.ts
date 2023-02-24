@@ -19,6 +19,7 @@ const SET_NOTE_PREFIX   = "notePrefix";
 const SET_NOTE_SUFFIX   = "noteSuffix";
 const SET_OVERWRITE     = "overwrite";
 const SET_HELPER_FILE   = "helperFile";
+const SET_FORCE_ARRAY   = "forceArray";
 
 interface JsonImportSettings {
 	[SET_JSON_FILE]: string;
@@ -31,6 +32,7 @@ interface JsonImportSettings {
 	[SET_NOTE_SUFFIX]: string;
 	[SET_OVERWRITE]: boolean;
 	[SET_HELPER_FILE]: string;
+	[SET_FORCE_ARRAY]: boolean;
 }
 
 const DEFAULT_SETTINGS: JsonImportSettings = {
@@ -43,7 +45,8 @@ const DEFAULT_SETTINGS: JsonImportSettings = {
 	[SET_NOTE_PREFIX]: "",
 	[SET_NOTE_SUFFIX]: "",
 	[SET_OVERWRITE]: true,
-	[SET_HELPER_FILE]: ""
+	[SET_HELPER_FILE]: "",
+	[SET_FORCE_ARRAY]: true
 }
 
 
@@ -86,7 +89,8 @@ export default class JsonImport extends Plugin {
 			modal.setHandler(this, this.generateNotes);
 			modal.setDefaults(this.settings[SET_JSON_FILE], this.settings[SET_TEMPLATE_FILE], this.settings[SET_TOP_FIELD], this.settings[SET_JSON_NAME], 
 				this.settings[SET_NOTE_PREFIX],  this.settings[SET_NOTE_SUFFIX], this.settings[SET_JSON_NAMEPATH],  
-				this.settings[SET_OVERWRITE], this.settings[SET_FOLDER_NAME], this.settings[SET_HELPER_FILE]);
+				this.settings[SET_OVERWRITE], this.settings[SET_FOLDER_NAME], this.settings[SET_HELPER_FILE],
+				this.settings[SET_FORCE_ARRAY] );
 			modal.open();
 		});
 		// Perform additional things with the ribbon
@@ -214,8 +218,8 @@ export default class JsonImport extends Plugin {
 	}
 
 	async generateNotes(objdata:any, templatefile:File, keyfield:string, jsonnamefield:string, noteprefix:string, notesuffix:string, 
-		jsonnamepathfield:boolean, overwrite:boolean, topfolder:string, sourcefile:string, helperfile:File) {
-		console.log(`generateNotes('${templatefile}', '${keyfield}', '${jsonnamefield}', '${noteprefix}', '${notesuffix}', path='${jsonnamepathfield}', ovewrite='${overwrite}', '${topfolder}', '${sourcefile}', '${helperfile}' )`);
+		jsonnamepathfield:boolean, overwrite:boolean, topfolder:string, sourcefile:string, helperfile:File, forcearray:boolean) {
+		console.log(`generateNotes('${templatefile}', '${keyfield}', '${jsonnamefield}', '${noteprefix}', '${notesuffix}', path='${jsonnamepathfield}', ovewrite='${overwrite}', '${topfolder}', '${sourcefile}', '${helperfile}', ${forcearray} )`);
 
 		//console.log(`json file = ${jsonfile.path}`);
 		//console.log(`json text = '${objdata}'`);
@@ -249,11 +253,12 @@ export default class JsonImport extends Plugin {
 				new Notice(`Key '${keyfield}' does not exist in the source file`)
 				return;
 			}
-			if (!Array.isArray(topobj))
-				topobj = [ topobj ];
 		}
 		else
-			topobj = Array.isArray(objdata) ? objdata : [ objdata ];
+			topobj = objdata;
+
+		if (!Array.isArray(topobj) && forcearray)
+			topobj = [ topobj ];
 
 		// Save current settings
 		this.settings[SET_TOP_FIELD]  = keyfield;
@@ -263,6 +268,7 @@ export default class JsonImport extends Plugin {
 		this.settings[SET_NOTE_SUFFIX] = notesuffix;
 		this.settings[SET_JSON_NAMEPATH] = jsonnamepathfield;
 		this.settings[SET_OVERWRITE]     = overwrite;
+		this.settings[SET_FORCE_ARRAY]   = forcearray;
 		this.saveSettings();
 
 		// Ensure that the destination folder exists
@@ -270,8 +276,11 @@ export default class JsonImport extends Plugin {
 		//if (topfolder.length>0 && !(await this.app.vault.exists(topfolder))) {
 		//	await this.app.vault.createFolder(topfolder).catch(err => console.log(`app.vault.createFolder: ${err}`));
 		//}
+		let entries:any = Array.isArray(topobj) ? topobj.entries() : Object.entries(topobj);
 
-		for (let row of topobj.values()) {
+		for (const [index, row] of entries) {
+			row.SourceIndex = index;
+			
 			let notefile = objfield(row, jsonnamefield);
 			// Ignore lines with an empty name field
 			if (typeof notefile === "number") notefile = notefile.toString();
@@ -280,6 +289,7 @@ export default class JsonImport extends Plugin {
 			notefile = noteprefix + notefile + notesuffix;
 
 			if (sourcefile) row.SourceFilename = sourcefile;   // provide access to the filename from which the data was taken.
+
 			let body:any;
 			try {
 				body = template(row);   // convert HTML to markdown
@@ -322,6 +332,7 @@ class FileSelectionModal extends Modal {
 	default_overwrite: boolean;
 	default_foldername: string;
 	default_helperfile: string;
+	default_forcearray: boolean;
 
 	constructor(app: App) {
 		super(app);
@@ -332,7 +343,7 @@ class FileSelectionModal extends Modal {
 		this.handler = handler;
 	}
 	setDefaults(jsonfile:string, templatefile:string, topfield:string, jsonname:string, noteprefix:string, notesuffix:string, 
-		jsonnamepath:boolean, overwrite:boolean, foldername:string, helperfile:string) {
+		jsonnamepath:boolean, overwrite:boolean, foldername:string, helperfile:string, forcearray:boolean) {
 		this.default_jsonfile = jsonfile;
 		this.default_templfile = templatefile;
 		this.default_topfield = topfield;
@@ -343,6 +354,7 @@ class FileSelectionModal extends Modal {
 		this.default_foldername = foldername;
 		this.default_overwrite = overwrite;
 		this.default_helperfile = helperfile;
+		this.default_forcearray = forcearray;
 	}
 
 	onOpen() {
@@ -388,6 +400,14 @@ class FileSelectionModal extends Modal {
       		}
     	});
 		keyField.value = this.default_topfield;
+
+	    const setting3c = new Setting(this.contentEl).setName("Each subfield is a separate note").setDesc("Select this option if 'Field containing the data' is a single object and a separate note should be created for each field of that object.");
+    	const forceArrayField = setting3c.controlEl.createEl("input", {
+      		attr: {
+        		type: "checkbox"
+      		}
+    	});
+		forceArrayField.checked = !this.default_forcearray;
 	
 	    const setting3 = new Setting(this.contentEl).setName("Field to use as Note name").setDesc("Field in each row of the JSON/CSV data to be used for the note name");
     	const inputNameField = setting3.controlEl.createEl("input", {
@@ -470,7 +490,7 @@ class FileSelectionModal extends Modal {
 					let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
 			  		await this.handler.call(this.caller, objdata, templatefiles[0], keyField.value, inputNameField.value, notePrefixField.value, 
 						noteSuffixField.value, inputNamePathField.checked, inputOverwriteField.checked, inputFolderName.value, datafiles[i].name,
-						helperfile?.[0]);
+						helperfile?.[0], !forceArrayField.checked);
 				}
 			} else {
 				let is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));

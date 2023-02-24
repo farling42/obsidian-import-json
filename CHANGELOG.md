@@ -1,5 +1,13 @@
 # ChangeLog
 
+## 0.27.0
+
+Provide an additional setting 'Each subfield is a separate note' which can be selected for JSON data files. When used with a JSON file where the 'Field containing the data' is an Object rather than an Array, then selecting this new option will create a separate note for each field of that object. (If not selected, then the object will be parsed once to create a single note.)
+
+If required, the name of the field can be referenced using the handlebars name of 'SourceField'.
+
+This will help users who have JSON files which contain objects for what should probably be simple arrays.
+
 ## 0.26.1
 
 Fix an issue where only the first '/' was replaced when 'Allow paths in Note name' was not selected. This fix also means that all invalid characters in the generated file name will be correctly replaced by '_' (rather than only the first occurrence).

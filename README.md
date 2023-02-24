@@ -40,6 +40,10 @@ Ensure that column names in CSV files contain only characters which make valid J
 
 For CSV decoding, the list of detected delimiter, linebreak, and fields (column names) are displayed in the Obsidian Developer Console.
 
+### New Handlebars variables
+
+- SourceFilename: The name of the file which is supplying the data.
+- SourceIndex: If the source data is an array (which is always the case for CSV files) this will be the index into the array, otherwise it will be the name of the field within the 'Field containing the data' object which is being used to create the current note.
 
 ### Additional Handlebar Functions
 
