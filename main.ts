@@ -79,22 +79,30 @@ export default class JsonImport extends Plugin {
 	knownpaths: Set<string>;   // The paths which we know exist
 	namepath: boolean;   // if true, the name field can contain a path, otherwise / will be replaced by _
 
+	startApp() {
+		const modal = new FileSelectionModal(this.app);
+		modal.setHandler(this, this.generateNotes);
+		modal.setDefaults(this.settings[SET_JSON_FILE], this.settings[SET_TEMPLATE_FILE], this.settings[SET_TOP_FIELD], this.settings[SET_JSON_NAME], 
+			this.settings[SET_NOTE_PREFIX],  this.settings[SET_NOTE_SUFFIX], this.settings[SET_JSON_NAMEPATH],  
+			this.settings[SET_OVERWRITE], this.settings[SET_FOLDER_NAME], this.settings[SET_HELPER_FILE],
+			this.settings[SET_FORCE_ARRAY] );
+		modal.open();
+	}
+
 	async onload() {
 		await this.loadSettings();
 
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('magnifying-glass', 'JSON/CSV Importer', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			const modal = new FileSelectionModal(this.app);
-			modal.setHandler(this, this.generateNotes);
-			modal.setDefaults(this.settings[SET_JSON_FILE], this.settings[SET_TEMPLATE_FILE], this.settings[SET_TOP_FIELD], this.settings[SET_JSON_NAME], 
-				this.settings[SET_NOTE_PREFIX],  this.settings[SET_NOTE_SUFFIX], this.settings[SET_JSON_NAMEPATH],  
-				this.settings[SET_OVERWRITE], this.settings[SET_FOLDER_NAME], this.settings[SET_HELPER_FILE],
-				this.settings[SET_FORCE_ARRAY] );
-			modal.open();
-		});
+		const ribbonIconEl = this.addRibbonIcon('magnifying-glass', 'JSON/CSV Importer', (evt: MouseEvent) => this.startApp() );
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('json-import-ribbon-class');
+
+		// Allow a keyboard shortcut to be specified.
+		this.addCommand({
+			id: 'import-json',
+			name: 'Import JSON/CSV file',
+			callback: () => this.startApp()
+		});
 	}
 
 	onunload() {

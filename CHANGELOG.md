@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.28.0
+
+Let the user specify a hotkey to open the import dialog.
+
 ## 0.27.0
 
 Provide an additional setting 'Each subfield is a separate note' which can be selected for JSON data files. When used with a JSON file where the 'Field containing the data' is an Object rather than an Array, then selecting this new option will create a separate note for each field of that object. (If not selected, then the object will be parsed once to create a single note.)
