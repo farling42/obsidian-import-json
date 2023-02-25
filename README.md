@@ -42,6 +42,8 @@ For CSV decoding, the list of detected delimiter, linebreak, and fields (column 
 
 You can set up an Obsidian Hotkey to open the dialog, if you don't want to use the icon in the left bar.
 
+The importer will only read the first object from the supplied JSON file. (So won't, for example, import a full set of entries from a Foundry VTT db file.)
+
 ### New Handlebars variables
 
 - SourceFilename: The name of the file which is supplying the data.
