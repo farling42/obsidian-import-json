@@ -1,6 +1,4 @@
-import { groupCollapsed } from 'console';
-import { generateKeySync } from 'crypto';
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Modal, Notice, Plugin, Setting, TFile } from 'obsidian';
 const Papa = require('papaparse');
 
 let handlebars = require('handlebars');
@@ -9,6 +7,12 @@ let hb_utils   = require('handlebars-utils');
 
 // Remember to rename these classes and interfaces!
 
+enum ExistingNotes {
+	KEEP_EXISTING,
+	REPLACE_EXISTING,
+	APPEND_TO_EXISTING
+}
+
 interface JsonImportSettings {
 	jsonName: string;
 	jsonNamePath: boolean;
@@ -16,7 +20,7 @@ interface JsonImportSettings {
 	topField: string;
 	notePrefix: string;
 	noteSuffix: string;
-	overwrite: boolean;
+	handleExistingNote: ExistingNotes;
 	forceArray: boolean;
 }
 
@@ -27,7 +31,7 @@ const DEFAULT_SETTINGS: JsonImportSettings = {
 	topField: "",
 	notePrefix: "",
 	noteSuffix: "",
-	overwrite: true,
+	handleExistingNote: ExistingNotes.KEEP_EXISTING,
 	forceArray: true
 }
 
@@ -285,15 +289,22 @@ export default class JsonImport extends Plugin {
 			await this.checkPath(filename);
 			// Delete the old version, if it exists
 			let exist = this.app.vault.getAbstractFileByPath(filename);
-			if (exist) {
-				if (!settings.overwrite) {
-					new Notice(`Note already exists for '${filename}' - ignoring entry in data file`);
-					continue;
+			if (!exist)
+				await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create: ${err}`));
+			else
+				switch (settings.handleExistingNote)
+				{
+					case ExistingNotes.REPLACE_EXISTING:
+						await this.app.vault.delete(exist).catch(err => console.log(`app.vault.delete: ${err}`));
+						await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create: ${err}`));
+						break;
+					case ExistingNotes.APPEND_TO_EXISTING:
+						await this.app.vault.append(exist as TFile, body).catch(err => console.log(`app.vault.append: ${err}`));
+						break;
+					default:
+						new Notice(`Note already exists for '${filename}' - ignoring entry in data file`);
+						break;
 				}
-				await this.app.vault.delete(exist).catch(err => console.log(`app.vault.delete: ${err}`));
-			}
-
-			await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create: ${err}`));
 		}
 	}
 }
@@ -400,20 +411,19 @@ class FileSelectionModal extends Modal {
     	});
 		inputJsonNamePath.checked = this.default_settings.jsonNamePath;
 	
-	    const settingOverwrite = new Setting(this.contentEl).setName("Overwrite existing Notes").setDesc("When ticked, existing Notes with a matching name will be overwritten by entries in the supplied JSON/CSV file. (If not ticked, then existing Notes will remain unchanged and entries in the JSON/CSV file with a matching name will be ignored)");
-    	const inputOverwrite = settingOverwrite.controlEl.createEl("input", {
-      		attr: {
-        		type: "checkbox"
-      		}
-    	});
-		inputOverwrite.checked = this.default_settings.overwrite;
+	    const settingOverwrite = new Setting(this.contentEl).setName("How to handle existing Notes").setDesc("OVERWRITE: Replace the existing note with the newly generated note; APPEND: Append the new note contents to the end of the existing note; IGNORE: Leave the original note untouched and generate a warning");
+    	const inputHandleExisting = settingOverwrite.controlEl.createEl("select");
+		inputHandleExisting.add(new Option('Keep', ExistingNotes.KEEP_EXISTING.toString()));
+		inputHandleExisting.add(new Option('Replace', ExistingNotes.REPLACE_EXISTING.toString()));
+		inputHandleExisting.add(new Option('Append', ExistingNotes.APPEND_TO_EXISTING.toString()));
+		inputHandleExisting.selectedIndex = this.default_settings.handleExistingNote;
 	
 	    const setting4 = new Setting(this.contentEl).setName("Name of Destination Folder in Vault").setDesc("The name of the folder in your Obsidian Vault, which will be created if required");
     	const inputFolderName = setting4.controlEl.createEl("input", {
       		attr: {
         		type: "string"
       		}
-    	});
+    	});		
 		inputFolderName.value = this.default_settings.folderName;
 	
 	    const setting5 = new Setting(this.contentEl).setName("Import").setDesc("Press to start the Import Process");
@@ -437,7 +447,7 @@ class FileSelectionModal extends Modal {
 				topField: inputTopField.value,
 				notePrefix: inputNotePrefix.value,
 				noteSuffix: inputNoteSuffix.value,
-				overwrite: inputOverwrite.checked,
+				handleExistingNote: parseInt(inputHandleExisting.value),
 				forceArray: !inputForceArray.checked,
 			}
 			// See if explicit data or files are being used

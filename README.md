@@ -18,13 +18,21 @@ Clicking the icon will open a dialog window with four fields:
 
 - "Choose TEMPLATE File" will allow you to choose any .md file, which should be a [Handlebars template file](https://handlebarsjs.com/guide/).
 
-- "Choose HELPER File" will allow you to specify a separate .js file which contains additional handlebars helper functions (see below).
-
-- "JSON name field" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note.
+- "Choose HELPERS File" will allow you to specify a separate .js file which contains additional handlebars helper functions (see below).
 
 - "Field containing the data" is used with a JSON file if a child of the top object should be used as the source of data instead of the very top of the JSON object.
 
-- "Set Folder" allows you to set the top-level folder name within your Vault into which all the notes will be placed.
+- "Each subfield is a separate note" can be set to indicate that the JSON object identified by "Field containing the data" actually contains a separate field for each note to be created (rather than the JSON object being an array).
+
+- "Field to use as Note name" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note.
+
+- "Note name prefix/suffix" allows optional text to be put at the start (prefix) and/or end (suffix) of the name of the created Notes.
+
+- "Allow paths in Note name" will create "/" in the given note name to be used to create folders within your vault. If not selected, then any occurrence of "/" will be replaced by "_".
+
+- "How to handle existing Notes" is available when you want to overwrite, or append to, existing notes already in your vault.
+
+- "Name of Destination Folder" allows you to set the top-level folder name within your Vault into which all the notes will be placed.
 
 When the IMPORT button is pressed then the JSON/CSV file will be read and all the notes created.
 

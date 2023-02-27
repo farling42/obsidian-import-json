@@ -1,5 +1,10 @@
 # ChangeLog
 
+## 0.29.0
+
+- Improve the handling of existing notes so that you can APPEND to an existing note instead of only REPLACE it.
+- This version also includes a rework of how settings are managed.
+
 ## 0.28.0
 
 Let the user specify a hotkey to open the import dialog.
