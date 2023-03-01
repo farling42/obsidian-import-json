@@ -288,18 +288,17 @@ export default class JsonImport extends Plugin {
 			let filename = settings.folderName + "/" + this.validFilename(notefile) + ".md";
 			await this.checkPath(filename);
 			// Delete the old version, if it exists
-			let exist = this.app.vault.getAbstractFileByPath(filename);
-			if (!exist)
+			let file = this.app.vault.getAbstractFileByPath(filename);
+			if (!file)
 				await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create: ${err}`));
 			else
 				switch (settings.handleExistingNote)
 				{
 					case ExistingNotes.REPLACE_EXISTING:
-						await this.app.vault.delete(exist).catch(err => console.log(`app.vault.delete: ${err}`));
-						await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create: ${err}`));
+						await this.app.vault.modify(file as TFile, body).catch(err => console.log(`app.vault.modify: ${err}`));
 						break;
 					case ExistingNotes.APPEND_TO_EXISTING:
-						await this.app.vault.append(exist as TFile, body).catch(err => console.log(`app.vault.append: ${err}`));
+						await this.app.vault.append(file as TFile, body).catch(err => console.log(`app.vault.append: ${err}`));
 						break;
 					default:
 						new Notice(`Note already exists for '${filename}' - ignoring entry in data file`);

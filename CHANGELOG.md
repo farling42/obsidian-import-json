@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.29.2
+
+- When handling of existing notes is set to REPLACE, then simply use vault.modify rather than deleting the old note and creating a new note.
+
 ## 0.29.1
 
 - Use the correct option names in the hint information about the new 'How to handle existing Notes' option.
