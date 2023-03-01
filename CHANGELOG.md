@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.29.1
+
+- Use the correct option names in the hint information about the new 'How to handle existing Notes' option.
+
 ## 0.29.0
 
 - Improve the handling of existing notes so that you can APPEND to an existing note instead of only REPLACE it.

@@ -411,11 +411,11 @@ class FileSelectionModal extends Modal {
     	});
 		inputJsonNamePath.checked = this.default_settings.jsonNamePath;
 	
-	    const settingOverwrite = new Setting(this.contentEl).setName("How to handle existing Notes").setDesc("OVERWRITE: Replace the existing note with the newly generated note; APPEND: Append the new note contents to the end of the existing note; IGNORE: Leave the original note untouched and generate a warning");
+	    const settingOverwrite = new Setting(this.contentEl).setName("How to handle existing Notes").setDesc("REPLACE: Replace the existing note with the newly generated note; APPEND: Append the new note contents to the end of the existing note; KEEP: Leave the original note untouched and generate a warning");
     	const inputHandleExisting = settingOverwrite.controlEl.createEl("select");
-		inputHandleExisting.add(new Option('Keep', ExistingNotes.KEEP_EXISTING.toString()));
-		inputHandleExisting.add(new Option('Replace', ExistingNotes.REPLACE_EXISTING.toString()));
-		inputHandleExisting.add(new Option('Append', ExistingNotes.APPEND_TO_EXISTING.toString()));
+		inputHandleExisting.add(new Option('KEEP', ExistingNotes.KEEP_EXISTING.toString()));
+		inputHandleExisting.add(new Option('REPLACE', ExistingNotes.REPLACE_EXISTING.toString()));
+		inputHandleExisting.add(new Option('APPEND', ExistingNotes.APPEND_TO_EXISTING.toString()));
 		inputHandleExisting.selectedIndex = this.default_settings.handleExistingNote;
 	
 	    const setting4 = new Setting(this.contentEl).setName("Name of Destination Folder in Vault").setDesc("The name of the folder in your Obsidian Vault, which will be created if required");
