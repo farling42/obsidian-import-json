@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.30.0
+
+- Add the ability to specify a URL from which to read JSON data. A GET operation to the URL must return the actual JSON data.
+
 ## 0.29.2
 
 - When handling of existing notes is set to REPLACE, then simply use vault.modify rather than deleting the old note and creating a new note.

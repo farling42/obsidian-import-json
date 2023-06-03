@@ -16,6 +16,7 @@ enum ExistingNotes {
 interface JsonImportSettings {
 	jsonName: string;
 	jsonNamePath: boolean;
+	jsonUrl: string;
 	folderName: string;
 	topField: string;
 	notePrefix: string;
@@ -27,6 +28,7 @@ interface JsonImportSettings {
 const DEFAULT_SETTINGS: JsonImportSettings = {
 	jsonName: "name",
 	jsonNamePath: false,
+	jsonUrl: "",
 	folderName: "Rewards",
 	topField: "",
 	notePrefix: "",
@@ -59,6 +61,25 @@ function objfield(srcobj:any, field:string)
 	return srcobj;
 }
 
+
+function fileFromUrl(url:string) {
+    return new Promise((resolve, reject) => {
+        let request = new XMLHttpRequest();
+		request.open('GET', url, true);
+		request.onreadystatechange = () => {
+			if (request.readyState === 4 && request.status === 200) {
+				var type = request.getResponseHeader('Content-Type');
+				if (type.indexOf("text") !== 1) {
+					resolve(request.responseText);
+				}
+				else
+					reject(request.statusText)
+			}
+		}
+		request.onerror = () => reject(request.statusText);
+		request.send(null);
+    });
+};
 
 export default class JsonImport extends Plugin {
 	settings: JsonImportSettings;
@@ -334,6 +355,13 @@ class FileSelectionModal extends Modal {
         		accept: ".json,.csv,.tsv"
       		}
     	});
+	    const setting1a = new Setting(this.contentEl).setName("Specify URL to JSON data").setDesc("Specify the URL location of the JSON data");
+    	const inputJsonUrl = setting1a.controlEl.createEl("input", {
+      		attr: {
+        		type: "string"
+      		}
+    	});
+		inputJsonUrl.value = this.default_settings.jsonUrl;
     	const inputJsonText = setting1.controlEl.createEl("textarea", {
 			attr: {
 			  rows: "5",
@@ -442,6 +470,7 @@ class FileSelectionModal extends Modal {
 			const settings : JsonImportSettings = {
 				jsonName: inputJsonName.value,
 				jsonNamePath: inputJsonNamePath.checked,
+				jsonUrl: inputJsonUrl.value,
 				folderName: inputFolderName.value,
 				topField: inputTopField.value,
 				notePrefix: inputNotePrefix.value,
@@ -451,7 +480,18 @@ class FileSelectionModal extends Modal {
 			}
 			// See if explicit data or files are being used
 			let srctext = inputJsonText.value;
-			if (srctext.length == 0) {
+			if (srctext.length > 0) {
+				const is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
+				const objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
+			  	await this.handler.call(this.caller, objdata, /*sourcefilename*/null, templatefiles[0], helperfile?.[0], settings);
+			} else if (inputJsonUrl.value?.length > 0) {
+				const fromurl:any = await fileFromUrl(inputJsonUrl.value).catch(e => { new Notice('Failed to GET data from URL'); return null});
+				if (fromurl) {
+					const objdata:object = JSON.parse(fromurl);
+					console.debug(`JSON data from '${inputJsonUrl.value}' =`, objdata)
+					await this.handler.call(this.caller, objdata, /*sourcefilename*/null, templatefiles[0], helperfile?.[0], settings);
+				}
+			} else {
 				const { files:datafiles } = inputDataFile;
 				if (!datafiles.length) {
 				  	new Notice("No JSON file selected");
@@ -465,10 +505,6 @@ class FileSelectionModal extends Modal {
 					let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
 			  		await this.handler.call(this.caller, objdata, datafiles[i].name, templatefiles[0], helperfile?.[0], settings);
 				}
-			} else {
-				let is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
-				let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  	await this.handler.call(this.caller, objdata, /*sourcefilename*/null, templatefiles[0], helperfile?.[0], settings);
 			}
 			new Notice("Import Finished");
 	  		//this.close();

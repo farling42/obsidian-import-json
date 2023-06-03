@@ -16,6 +16,8 @@ Clicking the icon will open a dialog window with four fields:
 
 - "Choose JSON/CSV File" will allow to you pick any .json or .csv file.
 
+- "Specify URL to JSON data" will allow you to enter the URL of a web location from which to retrieve some JSON data.
+
 - "Choose TEMPLATE File" will allow you to choose any .md file, which should be a [Handlebars template file](https://handlebarsjs.com/guide/).
 
 - "Choose HELPERS File" will allow you to specify a separate .js file which contains additional handlebars helper functions (see below).
