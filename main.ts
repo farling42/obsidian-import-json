@@ -478,18 +478,27 @@ class FileSelectionModal extends Modal {
 				handleExistingNote: parseInt(inputHandleExisting.value),
 				forceArray: !inputForceArray.checked,
 			}
+			function parsejson(text:string) :Array<object> {
+				// convert a string to an array of one or more json objects
+				return text.split(/(?<=})\s*(?={)/).map(obj => JSON.parse(obj));
+			}
 			// See if explicit data or files are being used
+			// Manage JSON files by allowing more than one JSON object in a single file...
+			// - convert the file's contents into an array
+			// - process each element in that array as a completely separate object.
 			let srctext = inputJsonText.value;
 			if (srctext.length > 0) {
 				const is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
-				const objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  	await this.handler.call(this.caller, objdata, /*sourcefilename*/null, templatefiles[0], helperfile?.[0], settings);
+				const objdataarray:Array<any> = is_json ? parsejson(srctext) : [ convertCsv(srctext) ];
+				for (const objdata of objdataarray)
+			  		await this.handler.call(this.caller, objdata, /*sourcefilename*/null, templatefiles[0], helperfile?.[0], settings);
 			} else if (inputJsonUrl.value?.length > 0) {
 				const fromurl:any = await fileFromUrl(inputJsonUrl.value).catch(e => { new Notice('Failed to GET data from URL'); return null});
 				if (fromurl) {
-					const objdata:object = JSON.parse(fromurl);
-					console.debug(`JSON data from '${inputJsonUrl.value}' =`, objdata)
-					await this.handler.call(this.caller, objdata, /*sourcefilename*/null, templatefiles[0], helperfile?.[0], settings);
+					const objdataarray:Array<any> = parsejson(fromurl);
+					console.debug(`JSON data from '${inputJsonUrl.value}' =`, objdataarray)
+					for (const objdata of objdataarray)
+						await this.handler.call(this.caller, objdata, /*sourcefilename*/null, templatefiles[0], helperfile?.[0], settings);
 				}
 			} else {
 				const { files:datafiles } = inputDataFile;
@@ -502,8 +511,9 @@ class FileSelectionModal extends Modal {
 					console.log(`Processing input file ${datafiles[i].name}`);
 			  		srctext = await datafiles[i].text();
 					let is_json:boolean = datafiles[i].name.endsWith(".json");
-					let objdata:any = is_json ? JSON.parse(srctext) : convertCsv(srctext);
-			  		await this.handler.call(this.caller, objdata, datafiles[i].name, templatefiles[0], helperfile?.[0], settings);
+					let objdataarray:Array<any> = is_json ? parsejson(srctext) : [ convertCsv(srctext) ];
+					for (const objdata of objdataarray)
+			  			await this.handler.call(this.caller, objdata, datafiles[i].name, templatefiles[0], helperfile?.[0], settings);
 				}
 			}
 			new Notice("Import Finished");

@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.31.0
+
+- Add support for JSON files which contain more than one json object. Each object will be handled separately against the configured import parameters.
+
 ## 0.30.0
 
 - Add the ability to specify a URL from which to read JSON data. A GET operation to the URL must return the actual JSON data.
