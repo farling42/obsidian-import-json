@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.31.1
+
+- When processing JSON, only look for multiple JSON records if the "Multiple JSON" checkbox is selected.
+
 ## 0.31.0
 
 - Add support for JSON files which contain more than one json object. Each object will be handled separately against the configured import parameters.

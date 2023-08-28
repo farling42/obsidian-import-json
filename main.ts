@@ -23,6 +23,7 @@ interface JsonImportSettings {
 	noteSuffix: string;
 	handleExistingNote: ExistingNotes;
 	forceArray: boolean;
+	multipleJSON: boolean;
 }
 
 const DEFAULT_SETTINGS: JsonImportSettings = {
@@ -34,7 +35,8 @@ const DEFAULT_SETTINGS: JsonImportSettings = {
 	notePrefix: "",
 	noteSuffix: "",
 	handleExistingNote: ExistingNotes.KEEP_EXISTING,
-	forceArray: true
+	forceArray: true,
+	multipleJSON: false
 }
 
 
@@ -368,6 +370,14 @@ class FileSelectionModal extends Modal {
 			  columns: "20"
 			}
 	 	});
+		 const setting1d = new Setting(this.contentEl).setName("Data contains multiple JSON objects").setDesc("Select this option if the JSON data might contain more than one object (the selected data is split into separate objects by looking for '}\s+{' as the separator");
+		 const inputMultipleJSON = setting1d.controlEl.createEl("input", {
+			   attr: {
+				 type: "checkbox"
+			   }
+		 });
+		 inputMultipleJSON.checked = this.default_settings.multipleJSON;
+ 
 
 	    const setting2 = new Setting(this.contentEl).setName("Choose TEMPLATE File").setDesc("Choose the Template (Handlebars) file");
     	const inputTemplateFile = setting2.controlEl.createEl("input", {
@@ -477,10 +487,11 @@ class FileSelectionModal extends Modal {
 				noteSuffix: inputNoteSuffix.value,
 				handleExistingNote: parseInt(inputHandleExisting.value),
 				forceArray: !inputForceArray.checked,
+				multipleJSON: inputMultipleJSON.checked
 			}
 			function parsejson(text:string) :Array<object> {
 				// convert a string to an array of one or more json objects
-				return text.split(/(?<=})\s*(?={)/).map(obj => JSON.parse(obj));
+				return settings.multipleJSON ? text.split(/(?<=})\s*(?={)/).map(obj => JSON.parse(obj)) : [ JSON.parse(text) ];
 			}
 			// See if explicit data or files are being used
 			// Manage JSON files by allowing more than one JSON object in a single file...
