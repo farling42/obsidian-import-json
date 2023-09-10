@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.31.2
+
+- Ensure that the handlebars processing is done with `{noEscape: true}` so that no characters are substituted by a HTML entity `&#number;`.
+
 ## 0.31.1
 
 - When processing JSON, only look for multiple JSON records if the "Multiple JSON" checkbox is selected.

@@ -239,10 +239,10 @@ export default class JsonImport extends Plugin {
 		this.knownpaths = new Set();
 		this.namepath = settings.jsonNamePath;
 
-		const compileoptions = { noEscape: true };
+		const compileoptions = { noEscape: true }; // Don't put HTML escape sequences into the generated string
 		let templatetext = await templatefile.text();
 		//console.log(`templatetext=\n${templatetext}\n`);
-		let template = handlebars.compile(templatetext);
+		let template = handlebars.compile(templatetext, compileoptions);
 		handlebars.registerHelper('table',     this.hb_table);
 		handlebars.registerHelper('substring', this.hb_substring);
 		handlebars.registerHelper('strarray',  this.hb_strarray);
