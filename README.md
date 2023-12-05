@@ -58,6 +58,7 @@ The importer will only read the first object from the supplied JSON file. (So wo
 
 - SourceFilename: The name of the file which is supplying the data.
 - SourceIndex: If the source data is an array (which is always the case for CSV files) this will be the index into the array, otherwise it will be the name of the field within the 'Field containing the data' object which is being used to create the current note.
+- dataRoot: Is the entirety of the JSON file that was loaded (in case you need to access anything that is outside of the element currently being converted into a Note).
 
 ### Additional Handlebar Functions
 

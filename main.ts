@@ -287,6 +287,7 @@ export default class JsonImport extends Plugin {
 		for (const [index, row] of entries) {
 			// Add our own fields to the ROW
 			row.SourceIndex = index;
+			row.dataRoot = objdata;
 			if (sourcefilename) row.SourceFilename = sourcefilename;   // provide access to the filename from which the data was taken.
 			
 			let notefile = objfield(row, settings.jsonName);
