@@ -62,16 +62,16 @@ Various top-level variables can be accessed to get information about the convers
 - @importSourceFile (File: the source file containing the CSV/JSON data [.name and .path are available])
 - @importHelperFile (File: the file containing the JS handlebars helpers [.name and .path are available])
 - @importSettings (Values from the Dialog window)
--- @importSettings.jsonName: (string) "Field to use as Note name"
---	@importSettings.jsonNamePath: (boolean) "Allow paths in Note name"
---	@importSettings.jsonUrl: (string) "Specify URL to JSON data"
---	@importSettings.folderName: (string) "Name of Destination Folder in Vault"
---	@importSettings.topField: (string) "Field containing the data"
---	@importSettings.notePrefix: (string) "Note name prefix"
---	@importSettings.noteSuffix: (string) "Note name suffix"
---	@importSettings.handleExistingNote: (integer) "How to handle existing Notes"
---	@importSettings.forceArray: (boolean) "Each subfield is a separate note"
---	@importSettings.multipleJSON: (boolean) "Data contains multiple JSON objects"
+  - @importSettings.jsonName: (string) "Field to use as Note name"
+  - @importSettings.jsonNamePath: (boolean) "Allow paths in Note name"
+  - @importSettings.jsonUrl: (string) "Specify URL to JSON data"
+  - @importSettings.folderName: (string) "Name of Destination Folder in Vault"
+  - @importSettings.topField: (string) "Field containing the data"
+  - @importSettings.notePrefix: (string) "Note name prefix"
+  - @importSettings.noteSuffix: (string) "Note name suffix"
+  - @importSettings.handleExistingNote: (integer) "How to handle existing Notes"
+  - @importSettings.forceArray: (boolean) "Each subfield is a separate note"
+  - @importSettings.multipleJSON: (boolean) "Data contains multiple JSON objects"
 
 #### Legacy variables
 
