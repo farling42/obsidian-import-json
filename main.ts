@@ -64,6 +64,11 @@ function objfield(srcobj:any, field:string)
 }
 
 
+function copyObject(obj:any) 
+{
+	return JSON.parse(JSON.stringify(obj))
+}
+
 function fileFromUrl(url:string) {
     return new Promise((resolve, reject) => {
         let request = new XMLHttpRequest();
@@ -231,15 +236,19 @@ export default class JsonImport extends Plugin {
 		this.knownpaths.add(path);
 	}
 
-	async generateNotes(objdata:any, sourcefilename:string, templatefile:File, helperfile:File, settings:JsonImportSettings) {
-		console.log(`generateNotes('${templatefile}', '${helperfile}', ${settings} )`);
+	async generateNotes(objdata:any, sourcefile:File, templatefile:File, helperfile:File, settings:JsonImportSettings) {
+		console.log(`generateNotes`, {templatefile, helperfile, settings});
+
+		let sourcefilename = sourcefile.name;
 
 		//console.log(`json file = ${jsonfile.path}`);
 		//console.log(`json text = '${objdata}'`);
 		this.knownpaths = new Set();
 		this.namepath = settings.jsonNamePath;
 
-		const compileoptions = { noEscape: true }; // Don't put HTML escape sequences into the generated string
+		const compileoptions = { 
+			noEscape: true,		// Don't put HTML escape sequences into the generated string
+		}; 
 		let templatetext = await templatefile.text();
 		//console.log(`templatetext=\n${templatetext}\n`);
 		let template = handlebars.compile(templatetext, compileoptions);
@@ -283,8 +292,25 @@ export default class JsonImport extends Plugin {
 		//	await this.app.vault.createFolder(topfolder).catch(err => console.log(`app.vault.createFolder: ${err}`));
 		//}
 		let entries:any = Array.isArray(topobj) ? topobj.entries() : Object.entries(topobj);
+		let hboptions:any = {
+			allowProtoPropertiesByDefault : true, // Allow access to the methods inside @importSourceFile
+		};
+		hboptions.data = {
+			importSourceIndex : 0,
+			importSourceFile: sourcefile,
+			importDataRoot : objdata,
+			importHelperFile: helperfile,
+			importSettings: settings,
+		}
+
+		console.debug(`hboptions`, hboptions);
 
 		for (const [index, row] of entries) {
+			if (!(row instanceof Object)) {
+				console.info(`Ignoring element ${index} which is not an object: ${JSON.stringify(row)}`)
+				continue;
+			}
+			hboptions.data.sourceIndex = index;
 			// Add our own fields to the ROW
 			row.SourceIndex = index;
 			row.dataRoot = objdata;
@@ -299,9 +325,9 @@ export default class JsonImport extends Plugin {
 
 			let body:any;
 			try {
-				body = template(row);   // convert HTML to markdown
+				body = template(row, hboptions);   // convert HTML to markdown
 			} catch (err) {
-				console.error(`${err.message}\nFOR ROW:\n${row}`)
+				console.error(`${err.message}\nFOR ROW:\n`,row)
 				continue;
 			}
 			if (body.contains("[object Object]")) {
@@ -503,14 +529,14 @@ class FileSelectionModal extends Modal {
 				const is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
 				const objdataarray:Array<any> = is_json ? parsejson(srctext) : [ convertCsv(srctext) ];
 				for (const objdata of objdataarray)
-			  		await this.handler.call(this.caller, objdata, /*sourcefilename*/null, templatefiles[0], helperfile?.[0], settings);
+			  		await this.handler.call(this.caller, objdata, /*sourcefile*/null, templatefiles[0], helperfile?.[0], settings);
 			} else if (inputJsonUrl.value?.length > 0) {
 				const fromurl:any = await fileFromUrl(inputJsonUrl.value).catch(e => { new Notice('Failed to GET data from URL'); return null});
 				if (fromurl) {
 					const objdataarray:Array<any> = parsejson(fromurl);
 					console.debug(`JSON data from '${inputJsonUrl.value}' =`, objdataarray)
 					for (const objdata of objdataarray)
-						await this.handler.call(this.caller, objdata, /*sourcefilename*/null, templatefiles[0], helperfile?.[0], settings);
+						await this.handler.call(this.caller, objdata, /*sourcefile*/null, templatefiles[0], helperfile?.[0], settings);
 				}
 			} else {
 				const { files:datafiles } = inputDataFile;
@@ -525,7 +551,7 @@ class FileSelectionModal extends Modal {
 					let is_json:boolean = datafiles[i].name.endsWith(".json");
 					let objdataarray:Array<any> = is_json ? parsejson(srctext) : [ convertCsv(srctext) ];
 					for (const objdata of objdataarray)
-			  			await this.handler.call(this.caller, objdata, datafiles[i].name, templatefiles[0], helperfile?.[0], settings);
+			  			await this.handler.call(this.caller, objdata, datafiles[i], templatefiles[0], helperfile?.[0], settings);
 				}
 			}
 			new Notice("Import Finished");

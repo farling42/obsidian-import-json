@@ -1,5 +1,33 @@
 # ChangeLog
 
+## 0.33.0
+
+- Ignore any elements of the selected object/array which are not valid JS objects (an INFO line is added to Obsidian's log to report the ignore.)
+- Provide new variables for handlebars templates:
+-- @importSourceIndex (index/fieldname of the current row/field)
+-- @importSourceFile (File: the source file containing the CSV/JSON data [.name and .path are available])
+-- @importDataRoot (the root of the data from the source file)
+-- @importHelperFile (File: the file containing the JS handlebars helpers [.name and .path are available])
+-- @importSettings (Values from the Dialog window)
+--- @importSettings.jsonName: (string) "Field to use as Note name"
+---	@importSettings.jsonNamePath: (boolean) "Allow paths in Note name"
+---	@importSettings.jsonUrl: (string) "Specify URL to JSON data"
+---	@importSettings.folderName: (string) "Name of Destination Folder in Vault"
+---	@importSettings.topField: (string) "Field containing the data"
+---	@importSettings.notePrefix: (string) "Note name prefix"
+---	@importSettings.noteSuffix: (string) "Note name suffix"
+---	@importSettings.handleExistingNote: (integer) "How to handle existing Notes"
+---	@importSettings.forceArray: (boolean) "Each subfield is a separate note"
+---	@importSettings.multipleJSON: (boolean) "Data contains multiple JSON objects"
+
+BREAKING CHANGE: `@dataRoot` has been replaced by `@importDataRoot`
+
+FUTURE BREAKING CHANGE: `SourceIndex` will be removed, since it can be accessed via `@importSourceIndex`
+
+## 0.32.0
+
+- Provide a new field in the object passed to the handlebars helper called `dataRoot`. This will allow you to access the root of the JSON file which was imported (whereas normally you can only access the fields of the element currently being converted into a Note).
+
 ## 0.31.2
 
 - Ensure that the handlebars processing is done with `{noEscape: true}` so that no characters are substituted by a HTML entity `&#number;`.

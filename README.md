@@ -56,9 +56,29 @@ The importer will only read the first object from the supplied JSON file. (So wo
 
 ### New Handlebars variables
 
+Various top-level variables can be accessed to get information about the conversion being undertaken:
+- @importSourceIndex: If the source data is an array (which is always the case for CSV files) this will be the index into the array, otherwise it will be the name of the field within the 'Field containing the data' object which is being used to create the current note.
+- @importDataRoot: Is the entirety of the JSON file that was loaded (in case you need to access anything that is outside of the element currently being converted into a Note).
+- @importSourceFile (File: the source file containing the CSV/JSON data [.name and .path are available])
+- @importHelperFile (File: the file containing the JS handlebars helpers [.name and .path are available])
+- @importSettings (Values from the Dialog window)
+-- @importSettings.jsonName: (string) "Field to use as Note name"
+--	@importSettings.jsonNamePath: (boolean) "Allow paths in Note name"
+--	@importSettings.jsonUrl: (string) "Specify URL to JSON data"
+--	@importSettings.folderName: (string) "Name of Destination Folder in Vault"
+--	@importSettings.topField: (string) "Field containing the data"
+--	@importSettings.notePrefix: (string) "Note name prefix"
+--	@importSettings.noteSuffix: (string) "Note name suffix"
+--	@importSettings.handleExistingNote: (integer) "How to handle existing Notes"
+--	@importSettings.forceArray: (boolean) "Each subfield is a separate note"
+--	@importSettings.multipleJSON: (boolean) "Data contains multiple JSON objects"
+
+#### Legacy variables
+
+The following variables will be removed in a future version, since they are accessible from the new `@import...` variables.
+
 - SourceFilename: The name of the file which is supplying the data.
 - SourceIndex: If the source data is an array (which is always the case for CSV files) this will be the index into the array, otherwise it will be the name of the field within the 'Field containing the data' object which is being used to create the current note.
-- dataRoot: Is the entirety of the JSON file that was loaded (in case you need to access anything that is outside of the element currently being converted into a Note).
 
 ### Additional Handlebar Functions
 
