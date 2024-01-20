@@ -1,5 +1,11 @@
 # ChangeLog
 
+## 0.34.0
+
+- Change target JS version to 2021 (instead of ES6).
+- Handle multiple slashes properly in the file's path.
+- Include vault path+filename when note creation fails.
+
 ## 0.33.0
 
 - Ignore any elements of the selected object/array which are not valid JS objects (an INFO line is added to Obsidian's log to report the ignore.)

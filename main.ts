@@ -4,6 +4,7 @@ const Papa = require('papaparse');
 let handlebars = require('handlebars');
 let hb_helpers = require('@budibase/handlebars-helpers')({handlebars: handlebars});
 let hb_utils   = require('handlebars-utils');
+let path       = require('path');
 
 // Remember to rename these classes and interfaces!
 
@@ -223,17 +224,17 @@ export default class JsonImport extends Plugin {
 	 * @param filename 
 	 */
 	async checkPath(filename: string) {
-		let pos = filename.lastIndexOf('/');
+		let pos = filename.lastIndexOf(path.sep);
 		if (pos < 0) return true;
-		let path = filename.slice(0,pos);
-		if (this.knownpaths.has(path)) return true;
-		let exists = this.app.vault.getAbstractFileByPath(path);
+		let filepath = filename.slice(0,pos);
+		if (this.knownpaths.has(filepath)) return true;
+		let exists = this.app.vault.getAbstractFileByPath(filepath);
 		// createFolder will create intervening paths too
 		if (!exists) {
-			console.log(`Creating folder for ${path}`);
-			await this.app.vault.createFolder(path).catch(err => console.log(`app.vault.checkPath: ${err}`));
+			console.log(`Creating folder for ${filepath}`);
+			await this.app.vault.createFolder(filepath).catch(err => console.log(`app.vault.checkPath: ${err}`));
 		}
-		this.knownpaths.add(path);
+		this.knownpaths.add(filepath);
 	}
 
 	async generateNotes(objdata:any, sourcefile:File, templatefile:File, helperfile:File, settings:JsonImportSettings) {
@@ -335,20 +336,23 @@ export default class JsonImport extends Plugin {
 				new Notice(`Incomplete conversion for '${notefile}'. Look for '[object Object]' (also reported in console)`);
 			}
 
-			let filename = settings.folderName + "/" + this.validFilename(notefile) + ".md";
+			// path.join, just without creating a full O/S absolute path
+			let filename:string = settings.folderName + path.sep + this.validFilename(notefile) + ".md";
+			filename = filename.replaceAll(/(\/|\\)+/g, path.sep);
+
 			await this.checkPath(filename);
 			// Delete the old version, if it exists
 			let file = this.app.vault.getAbstractFileByPath(filename);
 			if (!file)
-				await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create: ${err}`));
+				await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create(${filename}): ${err}`));
 			else
 				switch (settings.handleExistingNote)
 				{
 					case ExistingNotes.REPLACE_EXISTING:
-						await this.app.vault.modify(file as TFile, body).catch(err => console.log(`app.vault.modify: ${err}`));
+						await this.app.vault.modify(file as TFile, body).catch(err => console.log(`app.vault.modify(${file.path}): ${err}`));
 						break;
 					case ExistingNotes.APPEND_TO_EXISTING:
-						await this.app.vault.append(file as TFile, body).catch(err => console.log(`app.vault.append: ${err}`));
+						await this.app.vault.append(file as TFile, body).catch(err => console.log(`app.vault.append(${file.path}): ${err}`));
 						break;
 					default:
 						new Notice(`Note already exists for '${filename}' - ignoring entry in data file`);
