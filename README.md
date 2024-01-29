@@ -26,7 +26,7 @@ Clicking the icon will open a dialog window with four fields:
 
 - "Each subfield is a separate note" can be set to indicate that the JSON object identified by "Field containing the data" actually contains a separate field for each note to be created (rather than the JSON object being an array).
 
-- "Field to use as Note name" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note.
+- "Field to use as Note name" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note. Optionally, the name can be constructed from more than one field in the record/row using "${field}" to denote each field in the overall name pattern, for example "${country}-${town}"
 
 - "Note name prefix/suffix" allows optional text to be put at the start (prefix) and/or end (suffix) of the name of the created Notes.
 

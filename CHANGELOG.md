@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.35.0
+
+- Allow the notename to be constructed from more than one field. The "Field Name" can contain either a single field name, or a more complex format with field names surrounded by "${...}", for example "${country}-${name}" (without the double-quotes).
+
 ## 0.34.0
 
 - Change target JS version to 2021 (instead of ES6).

@@ -317,7 +317,8 @@ export default class JsonImport extends Plugin {
 			row.dataRoot = objdata;
 			if (sourcefilename) row.SourceFilename = sourcefilename;   // provide access to the filename from which the data was taken.
 			
-			let notefile = objfield(row, settings.jsonName);
+			let notefile : any = settings.jsonName;
+			notefile = (notefile.contains("${")) ? (new Function('row', `return \`${notefile.replaceAll("${","${row.")}\``))(row) : objfield(row, notefile);
 			// Ignore lines with an empty name field
 			if (typeof notefile === "number") notefile = notefile.toString();
 			if (!notefile || notefile.length == 0) continue;
