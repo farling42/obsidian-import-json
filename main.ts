@@ -310,6 +310,9 @@ export default class JsonImport extends Plugin {
 
 		console.debug(`hboptions`, hboptions);
 
+		let notefunc : Function;
+		if ((settings.jsonName.contains("${"))) notefunc = new Function('row', `return \`${settings.jsonName.replaceAll("${","${row.")}\``)
+
 		for (const [index, row] of entries) {
 			if (!(row instanceof Object)) {
 				console.info(`Ignoring element ${index} which is not an object: ${JSON.stringify(row)}`)
@@ -321,8 +324,7 @@ export default class JsonImport extends Plugin {
 			row.dataRoot = objdata;
 			if (sourcefilename) row.SourceFilename = sourcefilename;   // provide access to the filename from which the data was taken.
 			
-			let notefile : any = settings.jsonName;
-			notefile = (notefile.contains("${")) ? (new Function('row', `return \`${notefile.replaceAll("${","${row.")}\``))(row) : objfield(row, notefile);
+			let notefile : any = notefunc ? notefunc(row) : objfield(row, settings.jsonName);
 			// Ignore lines with an empty name field
 			if (typeof notefile === "number") notefile = notefile.toString();
 			if (!notefile || notefile.length == 0) continue;
