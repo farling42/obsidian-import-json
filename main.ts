@@ -25,6 +25,7 @@ interface JsonImportSettings {
 	handleExistingNote: ExistingNotes;
 	forceArray: boolean;
 	multipleJSON: boolean;
+	uniqueNames: boolean;
 }
 
 const DEFAULT_SETTINGS: JsonImportSettings = {
@@ -37,7 +38,8 @@ const DEFAULT_SETTINGS: JsonImportSettings = {
 	noteSuffix: "",
 	handleExistingNote: ExistingNotes.KEEP_EXISTING,
 	forceArray: true,
-	multipleJSON: false
+	multipleJSON: false,
+	uniqueNames: false
 }
 
 
@@ -93,6 +95,7 @@ export default class JsonImport extends Plugin {
 	settings: JsonImportSettings;
 	knownpaths: Set<string>;   // The paths which we know exist
 	namepath: boolean;   // if true, the name field can contain a path, otherwise / will be replaced by _
+	nameMap: Set<String>;
 
 	startApp() {
 		const modal = new FileSelectionModal(this.app);
@@ -246,6 +249,7 @@ export default class JsonImport extends Plugin {
 		//console.log(`json text = '${objdata}'`);
 		this.knownpaths = new Set();
 		this.namepath = settings.jsonNamePath;
+		if (settings.uniqueNames) this.nameMap = new Set();
 
 		const compileoptions = { 
 			noEscape: true,		// Don't put HTML escape sequences into the generated string
@@ -338,7 +342,18 @@ export default class JsonImport extends Plugin {
 			}
 
 			// path.join, just without creating a full O/S absolute path
-			let filename:string = settings.folderName + path.sep + this.validFilename(notefile) + ".md";
+			let filename:string = settings.folderName + path.sep + this.validFilename(notefile);
+			// Check for filename uniqueness ONLY during this import (not with other existing Notes in the vault)
+			if (settings.uniqueNames) {
+				let basename = filename;
+				let counter:number = 0;
+				while (this.nameMap.has(filename))
+				{
+					filename = basename + (++counter);
+				}
+				this.nameMap.add(filename);
+			}
+			filename += ".md";
 			filename = filename.replaceAll(/(\/|\\)+/g, path.sep);
 
 			await this.checkPath(filename);
@@ -357,7 +372,7 @@ export default class JsonImport extends Plugin {
 						break;
 					default:
 						new Notice(`Note already exists for '${filename}' - ignoring entry in data file`);
-						break;
+						break;	
 				}
 		}
 	}
@@ -452,7 +467,14 @@ class FileSelectionModal extends Modal {
       		}
     	});
 		inputJsonName.value = this.default_settings.jsonName;
-	
+	    const settingUniqueNames = new Setting(this.contentEl).setName("Add suffix on duplicate Note Names").setDesc("When checked, if a second or subsequent Note has the same name as a Note created during this import, then the second or subsequent note will have a numeric identifier added to the end of the Note Name to make it unique");
+    	const inputUniqueNames = settingUniqueNames.controlEl.createEl("input", {
+      		attr: {
+        		type: "checkbox"
+      		}
+    	});
+		inputUniqueNames.checked = this.default_settings.uniqueNames;
+
 	    const settingPrefix = new Setting(this.contentEl).setName("Note name prefix/suffix").setDesc("Optional prefix/suffix to be added either side of the value from the above Note name field");
     	const inputNotePrefix = settingPrefix.controlEl.createEl("input", {
       		attr: {
@@ -519,7 +541,9 @@ class FileSelectionModal extends Modal {
 				noteSuffix: inputNoteSuffix.value,
 				handleExistingNote: parseInt(inputHandleExisting.value),
 				forceArray: !inputForceArray.checked,
-				multipleJSON: inputMultipleJSON.checked
+				multipleJSON: inputMultipleJSON.checked,
+				uniqueNames: inputUniqueNames.checked
+
 			}
 			function parsejson(text:string) :Array<object> {
 				// convert a string to an array of one or more json objects

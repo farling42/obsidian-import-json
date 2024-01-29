@@ -3,6 +3,7 @@
 ## 0.35.0
 
 - Allow the notename to be constructed from more than one field. The "Field Name" can contain either a single field name, or a more complex format with field names surrounded by "${...}", for example "${country}-${name}" (without the double-quotes).
+- Provide an additional option "Add suffix on duplicate Note Names" which will append a number to the end of a Note if its name matches the name of a Note that was created during this import (it will NOT look for existing Notes in the vault before the import was started).
 
 ## 0.34.0
 

@@ -28,6 +28,8 @@ Clicking the icon will open a dialog window with four fields:
 
 - "Field to use as Note name" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note. Optionally, the name can be constructed from more than one field in the record/row using "${field}" to denote each field in the overall name pattern, for example "${country}-${town}"
 
+- "Add suffix on duplicate Note Names" will append a number to the note name if the same name is found more than once in the import data (it will NOT avoid conflicts with Notes that existed in the Vault before the import).
+
 - "Note name prefix/suffix" allows optional text to be put at the start (prefix) and/or end (suffix) of the name of the created Notes.
 
 - "Allow paths in Note name" will create "/" in the given note name to be used to create folders within your vault. If not selected, then any occurrence of "/" will be replaced by "_".
