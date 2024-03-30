@@ -12,7 +12,7 @@ This plug-in provides you with the tools to import your favourite JSON and CSV t
 
 A magnifying-glass icon will appear in the left margin when this plug-in is enabled.
 
-Clicking the icon will open a dialog window with four fields:
+Clicking the icon will open a dialog window with some fields:
 
 - "Choose JSON/CSV File" will allow to you pick any .json or .csv file.
 
@@ -26,7 +26,7 @@ Clicking the icon will open a dialog window with four fields:
 
 - "Each subfield is a separate note" can be set to indicate that the JSON object identified by "Field containing the data" actually contains a separate field for each note to be created (rather than the JSON object being an array).
 
-- "Field to use as Note name" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note. Optionally, the name can be constructed from more than one field in the record/row using "${field}" to denote each field in the overall name pattern, for example "${country}-${town}"
+- "Field to use as Note name" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note. Optionally, the name can be constructed from more than one field in the record/row using "${field}" to denote each field in the overall name pattern, for example "${country}-${town}". Alternatively, the name can be constructed using a small amount of javascript by wrapping the JS code as `@{...js...}` which should contain a return statement providing the name (the JS code can reference `this.field` for fields within the current record being processed, or `dataRoot.field` to access anything within the overall JSON file.)
 
 - "Add suffix on duplicate Note Names" will append a number to the note name if the same name is found more than once in the import data (it will NOT avoid conflicts with Notes that existed in the Vault before the import).
 

@@ -311,7 +311,11 @@ export default class JsonImport extends Plugin {
 		console.debug(`hboptions`, hboptions);
 
 		let notefunc : Function;
-		if ((settings.jsonName.contains("${"))) notefunc = new Function('row', `return \`${settings.jsonName.replaceAll("${","${row.")}\``)
+		let notefunc2 : Function;
+		if (settings.jsonName.startsWith("@{") && settings.jsonName.endsWith('}')) 
+			notefunc2 = new Function('dataRoot', settings.jsonName.slice(2,-1))
+		else if (settings.jsonName.contains("${")) 
+			notefunc = new Function('row', `return \`${settings.jsonName.replaceAll("${","${row.")}\``)
 
 		for (const [index, row] of entries) {
 			if (!(row instanceof Object)) {
@@ -324,7 +328,7 @@ export default class JsonImport extends Plugin {
 			row.dataRoot = objdata;
 			if (sourcefilename) row.SourceFilename = sourcefilename;   // provide access to the filename from which the data was taken.
 			
-			let notefile : any = notefunc ? notefunc(row) : objfield(row, settings.jsonName);
+			let notefile : any = notefunc ? notefunc(row) : notefunc2 ? notefunc2.call(row, objdata) : objfield(row, settings.jsonName);
 			// Ignore lines with an empty name field
 			if (typeof notefile === "number") notefile = notefile.toString();
 			if (!notefile || notefile.length == 0) continue;

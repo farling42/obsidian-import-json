@@ -1,5 +1,12 @@
 # ChangeLog
 
+## 0.36.0
+
+- Provide an alternative method for creating the note name for each note. The "Field to use as note name" can contain some javascript which should perform a "return" in order to provide the required value. The syntax is `@{...some javascript...}`  The JS can reference either `this.field` to reference items within the current record being processed, or `dataRoot.field` to access any data in the entire JSON record. A typical example would be:
+```
+@{return `${(this.state > 0) && dataRoot.pack.states.find(state => state.i === this.state)?.name || "Unknown" }-${this.name}`}
+```
+
 ## 0.35.0
 
 - Allow the notename to be constructed from more than one field. The "Field Name" can contain either a single field name, or a more complex format with field names surrounded by "${...}", for example "${country}-${name}" (without the double-quotes).
