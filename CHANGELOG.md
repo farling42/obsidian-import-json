@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.36.1
+
+- Update all the Obsidian-specific version files so that users know that the improvements added in 0.36.0 are actually present in their Vault.
+
 ## 0.36.0
 
 - Provide an alternative method for creating the note name for each note. The "Field to use as note name" can contain some javascript which should perform a "return" in order to provide the required value. The syntax is `@{...some javascript...}`  The JS can reference either `this.field` to reference items within the current record being processed, or `dataRoot.field` to access any data in the entire JSON record. A typical example would be:
