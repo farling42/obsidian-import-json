@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.36.2
+
+- Ensure that when accessing folders in the vault we always uses "/" as the directory separator, rather than `path.sep` which is the underlying O/S's preferred slash.
+
 ## 0.36.1
 
 - Update all the Obsidian-specific version files so that users know that the improvements added in 0.36.0 are actually present in their Vault.

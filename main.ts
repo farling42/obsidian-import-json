@@ -4,7 +4,7 @@ const Papa = require('papaparse');
 let handlebars = require('handlebars');
 let hb_helpers = require('@budibase/handlebars-helpers')({handlebars: handlebars});
 let hb_utils   = require('handlebars-utils');
-let path       = require('path');
+//let path       = require('path');
 
 // Remember to rename these classes and interfaces!
 
@@ -42,6 +42,8 @@ const DEFAULT_SETTINGS: JsonImportSettings = {
 	uniqueNames: false
 }
 
+// Obsidian.md always uses forward slash as separator in vault paths.
+const DIR_SEP = "/"; //path.sep;
 
 function convertCsv(source: string)
 {
@@ -227,7 +229,7 @@ export default class JsonImport extends Plugin {
 	 * @param filename 
 	 */
 	async checkPath(filename: string) {
-		let pos = filename.lastIndexOf(path.sep);
+		let pos = filename.lastIndexOf(DIR_SEP);
 		if (pos < 0) return true;
 		let filepath = filename.slice(0,pos);
 		if (this.knownpaths.has(filepath)) return true;
@@ -347,8 +349,7 @@ export default class JsonImport extends Plugin {
 				new Notice(`Incomplete conversion for '${notefile}'. Look for '[object Object]' (also reported in console)`);
 			}
 
-			// path.join, just without creating a full O/S absolute path
-			let filename:string = settings.folderName + path.sep + this.validFilename(notefile);
+			let filename:string = settings.folderName + DIR_SEP + this.validFilename(notefile);
 			// Check for filename uniqueness ONLY during this import (not with other existing Notes in the vault)
 			if (settings.uniqueNames) {
 				let basename = filename;
@@ -360,21 +361,21 @@ export default class JsonImport extends Plugin {
 				this.nameMap.add(filename);
 			}
 			filename += ".md";
-			filename = filename.replaceAll(/(\/|\\)+/g, path.sep);
+			filename = filename.replaceAll(/(\/|\\)+/g, DIR_SEP);
 
 			await this.checkPath(filename);
 			// Delete the old version, if it exists
 			let file = this.app.vault.getAbstractFileByPath(filename);
-			if (!file)
-				await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create(${filename}): ${err}`));
+			if (file === null)
+				await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create("${filename}"): ${err}`));
 			else
 				switch (settings.handleExistingNote)
 				{
 					case ExistingNotes.REPLACE_EXISTING:
-						await this.app.vault.modify(file as TFile, body).catch(err => console.log(`app.vault.modify(${file.path}): ${err}`));
+						await this.app.vault.modify(file as TFile, body).catch(err => console.log(`app.vault.modify("${file.path}"): ${err}`));
 						break;
 					case ExistingNotes.APPEND_TO_EXISTING:
-						await this.app.vault.append(file as TFile, body).catch(err => console.log(`app.vault.append(${file.path}): ${err}`));
+						await this.app.vault.append(file as TFile, body).catch(err => console.log(`app.vault.append("${file.path}"): ${err}`));
 						break;
 					default:
 						new Notice(`Note already exists for '${filename}' - ignoring entry in data file`);
