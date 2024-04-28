@@ -324,7 +324,7 @@ export default class JsonImport extends Plugin {
 				console.info(`Ignoring element ${index} which is not an object: ${JSON.stringify(row)}`)
 				continue;
 			}
-			hboptions.data.sourceIndex = index;
+			hboptions.data.importSourceIndex = index;
 			// Add our own fields to the ROW
 			row.SourceIndex = index;
 			row.dataRoot = objdata;

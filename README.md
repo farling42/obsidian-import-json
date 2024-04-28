@@ -75,12 +75,13 @@ Various top-level variables can be accessed to get information about the convers
   - `@importSettings.forceArray`: (boolean) "Each subfield is a separate note"
   - `@importSettings.multipleJSON`: (boolean) "Data contains multiple JSON objects"
 
-#### Legacy variables
+#### Additional fields for JavaScript used in creating a note name dynamically.
 
-The following variables will be removed in a future version, since they are accessible from the new `@import...` variables.
+The following variables are available inside the javascript which 
 
-- `SourceFilename`: The name of the file which is supplying the data. _This has been superceded by `@importSourceFile.name`_
-- `SourceIndex`: If the source data is an array (which is always the case for CSV files) this will be the index into the array, otherwise it will be the name of the field within the 'Field containing the data' object which is being used to create the current note. _This has been superceded by `@importSourceIndex`._
+- `this.SourceIndex`: If the source data is an array (which is always the case for CSV files) this will be the index into the array, otherwise it will be the name of the field within the 'Field containing the data' object which is being used to create the current note. _This has been superceded by `@importSourceIndex`._
+- `this.dataRoot` : contains the entire object defined by the JSON file selected for import.
+- `this.SourceFilename` : references the filename from which the JSON data was read.
 
 ### Additional Handlebar Functions
 

@@ -1,5 +1,10 @@
 # ChangeLog
 
+## 0.36.3
+
+- Ensure that `@importSourceIndex` is set (rather than the erroneous `@sourceIndex` name).
+- Update README to identify that `this.SourceIndex` will always be available to allow any JavaScript used for defining the note's name to use this information.
+
 ## 0.36.2
 
 - Ensure that when accessing folders in the vault we always uses "/" as the directory separator, rather than `path.sep` which is the underlying O/S's preferred slash.
