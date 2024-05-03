@@ -1,5 +1,16 @@
 # ChangeLog
 
+## 0.37.0
+
+- Provide a "Batch Mode" so that multiple parses can be made on a single file with different parameters for each pass. The file should contain a JSON array, with each element of the array being a JSON object containing any of the following fields:
+  - "fieldName": "Field containing the data"
+  - "noteName":  "Field to use as Note name"
+  - "folderName": "Name of Destination Folder in Vault"
+  - "namePrefix": Note name prefix/suffix"
+  - "nameSuffix": "Note name suffix"
+  - "batchStep":  "A name for this iteration which will be available in the handlebars file as `@importBatchStep`)
+  - Any of the above values which are not set will be left at the values from the previous/earlier entries in the array (or the values entered into the dialog if they are not present in any array element).
+
 ## 0.36.3
 
 - Ensure that `@importSourceIndex` is set (rather than the erroneous `@sourceIndex` name).

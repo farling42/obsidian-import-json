@@ -56,6 +56,38 @@ You can set up an Obsidian Hotkey to open the dialog, if you don't want to use t
 
 The importer will only read the first object from the supplied JSON file. (So won't, for example, import a full set of entries from a Foundry VTT db file.)
 
+### Batch Processing
+
+If multiple passes are required on the source file in order to create all the notes, then a batch file can be generated to automate multiple passes. The batch file is a JSON file containing a single array with one or more objects as elements.
+
+Each element defines how the parameters of the parse should change for this and future iterations. (If a field is omitted from a later element of the array, then the last set value in an earlier array element will remain in force.)
+
+- "fieldName"  - sets a new value for "Field containing the data".
+- "noteName"   - sets a new value for "Field to use as Note name".
+- "folderName" - sets a new value for "Name of Destination Folder in Vault".
+- "namePrefix" - sets a new value for "Note name prefix".
+- "nameSuffix" - sets a new value for "Name name suffix".
+- "batchStep"  - a string which can be read in the handlebars template file with `@importBatchStep` to select the appropriate section of the handlebars template file. (It will be an empty string if not explicitly set in a particular element of the batch array).
+
+The handlebars template file can use `{{#if (eq @importSettings.topField "pack.burgs") )}}` or similar to then select the correct part of the template file to use for each iteration through the batch file.
+
+An example batch.json file is:
+
+```json
+[
+    {
+        "fieldName": "pack.burgs",
+        "noteName": "@{return `${(this.state > 0) && dataRoot.pack.states.find(state => state.i === this.state)?.name || \"Unknown\" }-${this.name}`}",
+        "folderName": "import/burgs"
+    },
+    {
+        "fieldName": "pack.states",
+        "noteName": "name",
+        "folderName": "import/states"
+    }
+]
+```
+
 ### New Handlebars variables
 
 Various top-level variables can be accessed to get information about the conversion being undertaken:

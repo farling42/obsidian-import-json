@@ -26,6 +26,8 @@ interface JsonImportSettings {
 	forceArray: boolean;
 	multipleJSON: boolean;
 	uniqueNames: boolean;
+	batchFile: File|null;
+	batchStep: string|null;
 }
 
 const DEFAULT_SETTINGS: JsonImportSettings = {
@@ -39,7 +41,9 @@ const DEFAULT_SETTINGS: JsonImportSettings = {
 	handleExistingNote: ExistingNotes.KEEP_EXISTING,
 	forceArray: true,
 	multipleJSON: false,
-	uniqueNames: false
+	uniqueNames: false,
+	batchFile: null,
+	batchStep: null
 }
 
 // Obsidian.md always uses forward slash as separator in vault paths.
@@ -308,6 +312,7 @@ export default class JsonImport extends Plugin {
 			importDataRoot : objdata,
 			importHelperFile: helperfile,
 			importSettings: settings,
+			importBatchStep: settings.batchStep ?? ""
 		}
 
 		console.debug(`hboptions`, hboptions);
@@ -450,7 +455,15 @@ class FileSelectionModal extends Modal {
       		}
     	});
 		
-	    const setting3b = new Setting(this.contentEl).setName("Field containing the data").setDesc("The field containing the array of data (leave blank to use entire file)");
+	    const setting2b = new Setting(this.contentEl).setName("Choose BATCH File").setDesc("Optionally select a file which controls multiple parses of the data");
+    	const inputBatchFile = setting2b.controlEl.createEl("input", {
+      		attr: {
+        		type: "file",
+        		accept: ".json"
+      		}
+    	});
+		
+	    const setting3b = new Setting(this.contentEl).setName("Field containing the data").setDesc("The field containing the array of data (leave blank to use entire file) [in batch file 'fieldName']");
     	const inputTopField = setting3b.controlEl.createEl("input", {
       		attr: {
         		type: "string"
@@ -466,7 +479,7 @@ class FileSelectionModal extends Modal {
     	});
 		inputForceArray.checked = !this.default_settings.forceArray;
 	
-	    const setting3 = new Setting(this.contentEl).setName("Field to use as Note name").setDesc("Field in each row of the JSON/CSV data to be used for the note name");
+	    const setting3 = new Setting(this.contentEl).setName("Field to use as Note name").setDesc("Field in each row of the JSON/CSV data to be used for the note name [in batch file 'noteName']");
     	const inputJsonName = setting3.controlEl.createEl("input", {
       		attr: {
         		type: "string",
@@ -482,7 +495,7 @@ class FileSelectionModal extends Modal {
     	});
 		inputUniqueNames.checked = this.default_settings.uniqueNames;
 
-	    const settingPrefix = new Setting(this.contentEl).setName("Note name prefix/suffix").setDesc("Optional prefix/suffix to be added either side of the value from the above Note name field");
+	    const settingPrefix = new Setting(this.contentEl).setName("Note name prefix/suffix").setDesc("Optional prefix/suffix to be added either side of the value from the above Note name field [in batch file 'namePrefix', 'nameSuffix']");
     	const inputNotePrefix = settingPrefix.controlEl.createEl("input", {
       		attr: {
         		type: "string",
@@ -516,7 +529,7 @@ class FileSelectionModal extends Modal {
 		inputHandleExisting.add(new Option('APPEND', ExistingNotes.APPEND_TO_EXISTING.toString()));
 		inputHandleExisting.selectedIndex = this.default_settings.handleExistingNote;
 	
-	    const setting4 = new Setting(this.contentEl).setName("Name of Destination Folder in Vault").setDesc("The name of the folder in your Obsidian Vault, which will be created if required");
+	    const setting4 = new Setting(this.contentEl).setName("Name of Destination Folder in Vault").setDesc("The name of the folder in your Obsidian Vault, which will be created if required [in batch file, 'folderName']");
     	const inputFolderName = setting4.controlEl.createEl("input", {
       		attr: {
         		type: "string"
@@ -549,8 +562,8 @@ class FileSelectionModal extends Modal {
 				handleExistingNote: parseInt(inputHandleExisting.value),
 				forceArray: !inputForceArray.checked,
 				multipleJSON: inputMultipleJSON.checked,
-				uniqueNames: inputUniqueNames.checked
-
+				uniqueNames: inputUniqueNames.checked,
+				batchFile: inputBatchFile.files?.[0]
 			}
 			function parsejson(text:string) :Array<object> {
 				// convert a string to an array of one or more json objects
@@ -560,19 +573,38 @@ class FileSelectionModal extends Modal {
 			// Manage JSON files by allowing more than one JSON object in a single file...
 			// - convert the file's contents into an array
 			// - process each element in that array as a completely separate object.
+
+			async function callHandler(objdata:any, sourcefile:File|null) {
+				if (!settings.batchFile) {
+					await this.handler.call(this.caller, objdata, sourcefile, templatefiles[0], helperfile?.[0], settings);				
+				} else {
+					let batch:Array<object> = JSON.parse(await settings.batchFile.text());
+					console.log(batch);
+					for (let iter of batch) {
+						if (iter.fieldName)  settings.topField   = iter.fieldName;
+						if (iter.noteName)   settings.jsonName   = iter.noteName;
+						if (iter.folderName) settings.folderName = iter.folderName;
+						if (iter.namePrefix) settings.notePrefix = iter.notePrefix;
+						if (iter.nameSuffix) settings.noteSuffix = iter.noteSuffix;
+						settings.batchStep = iter.batchStep ?? "";
+						console.log(`BATCH processing '${settings.topField}', '${settings.jsonName}', '${settings.folderName}'`)
+						await this.handler.call(this.caller, objdata, sourcefile, templatefiles[0], helperfile?.[0], settings);
+					}
+				}
+			}
 			let srctext = inputJsonText.value;
 			if (srctext.length > 0) {
 				const is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
 				const objdataarray:Array<any> = is_json ? parsejson(srctext) : [ convertCsv(srctext) ];
 				for (const objdata of objdataarray)
-			  		await this.handler.call(this.caller, objdata, /*sourcefile*/null, templatefiles[0], helperfile?.[0], settings);
+			  		await callHandler(objdata, /*sourcefile*/null);
 			} else if (inputJsonUrl.value?.length > 0) {
 				const fromurl:any = await fileFromUrl(inputJsonUrl.value).catch(e => { new Notice('Failed to GET data from URL'); return null});
 				if (fromurl) {
 					const objdataarray:Array<any> = parsejson(fromurl);
 					console.debug(`JSON data from '${inputJsonUrl.value}' =`, objdataarray)
 					for (const objdata of objdataarray)
-						await this.handler.call(this.caller, objdata, /*sourcefile*/null, templatefiles[0], helperfile?.[0], settings);
+						await callHandler.call(this, objdata, /*sourcefile*/null);
 				}
 			} else {
 				const { files:datafiles } = inputDataFile;
@@ -587,7 +619,7 @@ class FileSelectionModal extends Modal {
 					let is_json:boolean = datafiles[i].name.endsWith(".json");
 					let objdataarray:Array<any> = is_json ? parsejson(srctext) : [ convertCsv(srctext) ];
 					for (const objdata of objdataarray)
-			  			await this.handler.call(this.caller, objdata, datafiles[i], templatefiles[0], helperfile?.[0], settings);
+			  			await callHandler.call(this, objdata, /*sourcefile*/datafiles[i]);
 				}
 			}
 			new Notice("Import Finished");
