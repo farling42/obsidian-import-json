@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.37.1
+
+- Incorporate some bug fixes provided by @Myliak
+
 ## 0.37.0
 
 - Provide a "Batch Mode" so that multiple parses can be made on a single file with different parameters for each pass. The file should contain a JSON array, with each element of the array being a JSON object containing any of the following fields:
