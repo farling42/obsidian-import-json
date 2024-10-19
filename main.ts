@@ -249,10 +249,6 @@ export default class JsonImport extends Plugin {
 	async generateNotes(objdata:any, sourcefile:File, templatefile:File, helperfile:File, settings:JsonImportSettings) {
 		console.log(`generateNotes`, {templatefile, helperfile, settings});
 
-		let sourcefilename = sourcefile.name;
-
-		//console.log(`json file = ${jsonfile.path}`);
-		//console.log(`json text = '${objdata}'`);
 		this.knownpaths = new Set();
 		this.namepath = settings.jsonNamePath;
 		if (settings.uniqueNames) this.nameMap = new Set();
@@ -273,8 +269,6 @@ export default class JsonImport extends Plugin {
 			let initJsonHelpers = new Function('handlebars', await helperfile.text());
 			if (initJsonHelpers) initJsonHelpers(handlebars);
 		}
-
-		//console.log(`template = '${template}'`);
 
 		// Firstly, convert JSON to an object
 		let topobj:any=undefined;
@@ -333,7 +327,7 @@ export default class JsonImport extends Plugin {
 			// Add our own fields to the ROW
 			row.SourceIndex = index;
 			row.dataRoot = objdata;
-			if (sourcefilename) row.SourceFilename = sourcefilename;   // provide access to the filename from which the data was taken.
+			if (sourcefile) row.SourceFilename = sourcefile.name;   // provide access to the filename from which the data was taken.
 			
 			let notefile : any = notefunc ? notefunc(row) : notefunc2 ? notefunc2.call(row, objdata) : objfield(row, settings.jsonName);
 			// Ignore lines with an empty name field
@@ -576,7 +570,7 @@ class FileSelectionModal extends Modal {
 
 			async function callHandler(objdata:any, sourcefile:File|null) {
 				if (!settings.batchFile) {
-					await this.handler.call(this.caller, objdata, sourcefile, templatefiles[0], helperfile?.[0], settings);				
+					await this.handler.call(this.caller, objdata, sourcefile, templatefiles[0], helperfile?.[0], settings);
 				} else {
 					let batch:Array<object> = JSON.parse(await settings.batchFile.text());
 					console.log(batch);
@@ -597,7 +591,7 @@ class FileSelectionModal extends Modal {
 				const is_json:boolean = (srctext.startsWith('{') && srctext.endsWith('}'));
 				const objdataarray:Array<any> = is_json ? parsejson(srctext) : [ convertCsv(srctext) ];
 				for (const objdata of objdataarray)
-			  		await callHandler(objdata, /*sourcefile*/null);
+			  		await callHandler.call(this, objdata, /*sourcefile*/null);
 			} else if (inputJsonUrl.value?.length > 0) {
 				const fromurl:any = await fileFromUrl(inputJsonUrl.value).catch(e => { new Notice('Failed to GET data from URL'); return null});
 				if (fromurl) {
