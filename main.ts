@@ -63,7 +63,7 @@ function convertCsv(source: string) {
 }
 
 
-function objfield(srcobj: any, field: string, otherfields: any=undefined) {
+function objfield(srcobj: any, field: string, otherfields: any = undefined): any {
   if (!field) return srcobj;
   if (otherfields && field.startsWith('@')) return objfield(otherfields, field.slice(1));
 
@@ -270,7 +270,7 @@ export default class JsonImport extends Plugin {
     if (settings.jsonName.startsWith("@{") && settings.jsonName.endsWith('}'))
       notefunc2 = new Function('dataRoot', 'impdata', settings.jsonName.slice(2, -1))
     else if (settings.jsonName.contains("${"))
-      notefunc = new Function('row', 'zzimpdata', `return \`${settings.jsonName.replaceAll("${", "${row.").replaceAll("row.@","zzimpdata.")}\``)
+      notefunc = new Function('row', 'zzimpdata', `return \`${settings.jsonName.replaceAll("${", "${row.").replaceAll("row.@", "zzimpdata.")}\``)
 
     // Save current settings
     this.settings = settings;
