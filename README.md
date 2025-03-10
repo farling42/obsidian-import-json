@@ -40,6 +40,14 @@ Clicking the icon will open a dialog window with some fields:
 
 When the IMPORT button is pressed then the JSON/CSV file will be read and all the notes created.
 
+### Arrays inside arrays
+
+If you have a JSON structure which has a top-level array in which each record contains an array, you can create a separate note for each of the nested arrays by specifying the path in the "Field containing the data", using a variable name for the array index (the variable name becomes available as `@variablename` in the MD file).
+
+For example, setting the field to `logs[logid].logEntries` where logEntries is also an array, will create a note for each entry in the logEntries array of every entry in the higher logs array; and the MD file can access fields in the higher logs[] array using (in this case) the prefix `@logid`.
+
+Yes, it should be possible to access multiple nested levels of arrays.
+
 ### Notes
 
 If your Handlebars template file tries to reference something in the JSON data which isn't a simple text field, then the generated note will contain the text \[object Object].

@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.38.0
+
+- Provide a method of iterating over all sub-arrays within a higher-level array. e.g. Settings "Field containing the data" to `logs[logid].logEntries` will iterate over the logEntries array that occurs in each occurrence of the records inside the top-level logs array; the fields of the logs[] array can be accessed inside the MD file the name of the array index you specified in the field name, such as `@logid.title`.
+
 ## 0.37.1
 
 - Incorporate some bug fixes provided by @Myliak
