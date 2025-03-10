@@ -1,6 +1,6 @@
 # ChangeLog
 
-## 0.38.2
+## 0.38.3
 
 - In the simple syntax, the new array index variables can be used, so a note name template could be `${@logid.title}-${subtitle}`.
 - Allow the array indices to be used in the note name template function; accessible by the hard-coded prefix "impdata" followed by the index variable name that you specified in "Field containing the data".
