@@ -338,7 +338,7 @@ export default class JsonImport extends Plugin {
 
     async function notesFromArray(topobj: any, extradata: any = {}) {
 
-      let entries: ArrayIterator<[number, any]> | any[] =
+      let entries: any =
         Array.isArray(topobj) ? topobj.entries() :
           settings.forceArray ? [topobj].entries() :
             Object.entries(topobj);
