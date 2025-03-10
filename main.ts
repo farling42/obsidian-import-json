@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { App, Modal, Notice, Plugin, Setting, TFile } from 'obsidian';
 const Papa = require('papaparse');
 
@@ -28,8 +29,8 @@ interface JsonImportSettings {
   forceArray: boolean;
   multipleJSON: boolean;
   uniqueNames: boolean;
-  batchFile: File | null;
-  batchStep: string | null;
+  batchFile: File | null | undefined;
+  batchStep?: string | null;
 }
 
 const DEFAULT_SETTINGS: JsonImportSettings = {
@@ -65,10 +66,6 @@ function convertCsv(source: string) {
 function objfield(srcobj: any, field: string) {
   if (!field) return srcobj;
   for (const part of field.split('.')) {
-    let array = part.match(/(\w+)(?:\[(\w+)\])?/);
-    if (array[2]) {
-
-    }
     srcobj = srcobj[part];
     if (srcobj === undefined) break;
   }
@@ -87,7 +84,7 @@ function fileFromUrl(url: string) {
     request.onreadystatechange = () => {
       if (request.readyState === 4 && request.status === 200) {
         var type = request.getResponseHeader('Content-Type');
-        if (type.indexOf("text") !== 1) {
+        if (type && type.indexOf("text") !== 1) {
           resolve(request.responseText);
         }
         else
@@ -408,14 +405,14 @@ export default class JsonImport extends Plugin {
         // Delete the old version, if it exists
         let file = this.app.vault.getAbstractFileByPath(filename);
         if (file === null)
-          await this.app.vault.create(filename, body).catch(err => console.log(`app.vault.create("${filename}"): ${err}`));
+          await this.app.vault.create(filename, body).catch((err: any) => console.log(`app.vault.create("${filename}"): ${err}`));
         else
           switch (settings.handleExistingNote) {
             case ExistingNotes.REPLACE_EXISTING:
-              await this.app.vault.modify(file as TFile, body).catch(err => console.log(`app.vault.modify("${file.path}"): ${err}`));
+              await this.app.vault.modify(file as TFile, body).catch((err: any) => console.log(`app.vault.modify("${file.path}"): ${err}`));
               break;
             case ExistingNotes.APPEND_TO_EXISTING:
-              await this.app.vault.append(file as TFile, body).catch(err => console.log(`app.vault.append("${file.path}"): ${err}`));
+              await this.app.vault.append(file as TFile, body).catch((err: any) => console.log(`app.vault.append("${file.path}"): ${err}`));
               break;
             default:
               new Notice(`Note already exists for '${filename}' - ignoring entry in data file`);
@@ -580,7 +577,7 @@ class FileSelectionModal extends Modal {
     input5.onclick = async () => {
       // Check for a valid template file
       const { files: templatefiles } = inputTemplateFile;
-      if (!templatefiles.length) {
+      if (!templatefiles || templatefiles.length<1) {
         new Notice("No Template file selected");
         return;
       }
@@ -611,10 +608,11 @@ class FileSelectionModal extends Modal {
       // - process each element in that array as a completely separate object.
 
       async function callHandler(objdata: any, sourcefile: File | null) {
+        if (!templatefiles) return;
         if (!settings.batchFile) {
           await this.handler.call(this.caller, objdata, sourcefile, templatefiles[0], helperfile?.[0], settings);
         } else {
-          let batch: Array<object> = JSON.parse(await settings.batchFile.text());
+          let batch: Array<any> = JSON.parse(await settings.batchFile.text());
           console.log(batch);
           for (let iter of batch) {
             if (iter.fieldName) settings.topField = iter.fieldName;
@@ -635,7 +633,7 @@ class FileSelectionModal extends Modal {
         for (const objdata of objdataarray)
           await callHandler.call(this, objdata, /*sourcefile*/null);
       } else if (inputJsonUrl.value?.length > 0) {
-        const fromurl: any = await fileFromUrl(inputJsonUrl.value).catch(e => { new Notice('Failed to GET data from URL'); return null });
+        const fromurl: any = await fileFromUrl(inputJsonUrl.value).catch((e):any => { new Notice('Failed to GET data from URL'); return null });
         if (fromurl) {
           const objdataarray: Array<any> = parsejson(fromurl);
           console.debug(`JSON data from '${inputJsonUrl.value}' =`, objdataarray)
@@ -644,7 +642,7 @@ class FileSelectionModal extends Modal {
         }
       } else {
         const { files: datafiles } = inputDataFile;
-        if (!datafiles.length) {
+        if (!datafiles?.length) {
           new Notice("No JSON file selected");
           return;
         }
