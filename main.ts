@@ -63,8 +63,10 @@ function convertCsv(source: string) {
 }
 
 
-function objfield(srcobj: any, field: string) {
+function objfield(srcobj: any, field: string, otherfields: any=undefined) {
   if (!field) return srcobj;
+  if (otherfields && field.startsWith('@')) return objfield(otherfields, field.slice(1));
+
   for (const part of field.split('.')) {
     srcobj = srcobj[part];
     if (srcobj === undefined) break;
@@ -72,10 +74,6 @@ function objfield(srcobj: any, field: string) {
   return srcobj;
 }
 
-
-function copyObject(obj: any) {
-  return JSON.parse(JSON.stringify(obj))
-}
 
 function fileFromUrl(url: string) {
   return new Promise((resolve, reject) => {
@@ -270,9 +268,9 @@ export default class JsonImport extends Plugin {
     let notefunc: Function;
     let notefunc2: Function;
     if (settings.jsonName.startsWith("@{") && settings.jsonName.endsWith('}'))
-      notefunc2 = new Function('dataRoot', settings.jsonName.slice(2, -1))
+      notefunc2 = new Function('dataRoot', 'impdata', settings.jsonName.slice(2, -1))
     else if (settings.jsonName.contains("${"))
-      notefunc = new Function('row', `return \`${settings.jsonName.replaceAll("${", "${row.")}\``)
+      notefunc = new Function('row', 'zzimpdata', `return \`${settings.jsonName.replaceAll("${", "${row.").replaceAll("row.@","zzimpdata.")}\``)
 
     // Save current settings
     this.settings = settings;
@@ -369,7 +367,9 @@ export default class JsonImport extends Plugin {
         row.dataRoot = objdata;
         if (sourcefile) row.SourceFilename = sourcefile.name;   // provide access to the filename from which the data was taken.
 
-        let notefile: any = notefunc ? notefunc(row) : notefunc2 ? notefunc2.call(row, objdata) : objfield(row, settings.jsonName);
+        let notefile: any = notefunc ? notefunc(row, hboptions.data) :
+          notefunc2 ? notefunc2.call(row, objdata, hboptions.data) :
+            objfield(row, settings.jsonName, hboptions.data);
         // Ignore lines with an empty name field
         if (typeof notefile === "number") notefile = notefile.toString();
         if (!notefile || notefile.length == 0) continue;
@@ -577,7 +577,7 @@ class FileSelectionModal extends Modal {
     input5.onclick = async () => {
       // Check for a valid template file
       const { files: templatefiles } = inputTemplateFile;
-      if (!templatefiles || templatefiles.length<1) {
+      if (!templatefiles || templatefiles.length < 1) {
         new Notice("No Template file selected");
         return;
       }
@@ -633,7 +633,7 @@ class FileSelectionModal extends Modal {
         for (const objdata of objdataarray)
           await callHandler.call(this, objdata, /*sourcefile*/null);
       } else if (inputJsonUrl.value?.length > 0) {
-        const fromurl: any = await fileFromUrl(inputJsonUrl.value).catch((e):any => { new Notice('Failed to GET data from URL'); return null });
+        const fromurl: any = await fileFromUrl(inputJsonUrl.value).catch((e): any => { new Notice('Failed to GET data from URL'); return null });
         if (fromurl) {
           const objdataarray: Array<any> = parsejson(fromurl);
           console.debug(`JSON data from '${inputJsonUrl.value}' =`, objdataarray)

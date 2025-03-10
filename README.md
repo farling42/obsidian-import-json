@@ -26,7 +26,9 @@ Clicking the icon will open a dialog window with some fields:
 
 - "Each subfield is a separate note" can be set to indicate that the JSON object identified by "Field containing the data" actually contains a separate field for each note to be created (rather than the JSON object being an array).
 
-- "Field to use as Note name" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note. Optionally, the name can be constructed from more than one field in the record/row using "${field}" to denote each field in the overall name pattern, for example "${country}-${town}". Alternatively, the name can be constructed using a small amount of javascript by wrapping the JS code as `@{...js...}` which should contain a return statement providing the name (the JS code can reference `this.field` for fields within the current record being processed, or `dataRoot.field` to access anything within the overall JSON file.)
+- "Field to use as Note name" will allow you to specify the JSON field/CSV column within each row of the table which should be used as the name of the note. Optionally, the name can be constructed from more than one field in the record/row using "${field}" to denote each field in the overall name pattern, for example "${country}-${town}".
+
+-- Alternatively, the name can be constructed using a small amount of javascript by wrapping the JS code as `@{...js...}` which should contain a return statement providing the name (the JS code can reference `this.field` for fields within the current record being processed, or `dataRoot.field` to access anything within the overall JSON file.)
 
 - "Add suffix on duplicate Note Names" will append a number to the note name if the same name is found more than once in the import data (it will NOT avoid conflicts with Notes that existed in the Vault before the import).
 
@@ -44,7 +46,11 @@ When the IMPORT button is pressed then the JSON/CSV file will be read and all th
 
 If you have a JSON structure which has a top-level array in which each record contains an array, you can create a separate note for each of the nested arrays by specifying the path in the "Field containing the data", using a variable name for the array index (the variable name becomes available as `@variablename` in the MD file).
 
-For example, setting the field to `logs[logid].logEntries` where logEntries is also an array, will create a note for each entry in the logEntries array of every entry in the higher logs array; and the MD file can access fields in the higher logs[] array using (in this case) the prefix `@logid`.
+For example, setting the field to `logs[logid].logEntries` where logEntries is also an array, will create a note for each entry in the logEntries array of every entry in the higher logs array; and the MD file can access fields in the higher logs[] array using (in this case) the prefix `@logid`  (e.g. `@logid.title`)
+
+In a simple form of Note name syntax, you can include the log index variable into the note name, e.g. `@logid + "-" + title`.
+
+The array index can be used in the note name. The `${}` syntax can be used like `${@logid.title}-${title}`. For the function `@{}` syntax, the array index must be referenced using a prefix of "impdata" - so in the above example, the note name code could use `impdata.logid.title`.
 
 Yes, it should be possible to access multiple nested levels of arrays.
 
