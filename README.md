@@ -46,7 +46,7 @@ When the IMPORT button is pressed then the JSON/CSV file will be read and all th
 
 If you have a JSON structure which has a top-level array in which each record contains an array, you can create a separate note for each of the nested arrays by specifying the path in the "Field containing the data", using a variable name for the array index (the variable name becomes available as `@variablename` in the MD file).
 
-For example, setting the field to `logs[logid].logEntries` where logEntries is also an array, will create a note for each entry in the logEntries array of every entry in the higher logs array; and the MD file can access fields in the higher logs[] array using (in this case) the prefix `@logid`  (e.g. `@logid.title`)
+For example, setting the field to `logs[logid].logEntries` where logEntries is also an array, will create a note for each entry in the logEntries array of every entry in the higher logs array; and the MD file can access fields in the higher logs[] array using (in this case) the prefix `@logid` to reference the actual contents of the array, it is NOT an index. (e.g. `@logid.title`)
 
 The array index can be used in the note name:
 
