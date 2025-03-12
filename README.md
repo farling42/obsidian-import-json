@@ -48,7 +48,7 @@ If you have a JSON structure which has a top-level array in which each record co
 
 For example, setting the field to `logs[logid].logEntries` where logEntries is also an array, will create a note for each entry in the logEntries array of every entry in the higher logs array; and the MD file can access fields in the higher logs[] array using (in this case) the prefix `@logid` to reference the actual contents of the array, it is NOT an index. (e.g. `@logid.title`)
 
-The array index can be used in the note name:
+The array element reference can be used in the note name:
 
 - The `${}` syntax can be used like `${@logid.title}-${title}`.
 - For the function `@{}` syntax, the array index must be referenced using a prefix of `impdata` - so in the above example, the note name code could use `impdata.logid.title`.
