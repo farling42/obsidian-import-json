@@ -48,9 +48,10 @@ If you have a JSON structure which has a top-level array in which each record co
 
 For example, setting the field to `logs[logid].logEntries` where logEntries is also an array, will create a note for each entry in the logEntries array of every entry in the higher logs array; and the MD file can access fields in the higher logs[] array using (in this case) the prefix `@logid`  (e.g. `@logid.title`)
 
-In a simple form of Note name syntax, you can include the log index variable into the note name, e.g. `@logid + "-" + title`.
+The array index can be used in the note name:
 
-The array index can be used in the note name. The `${}` syntax can be used like `${@logid.title}-${title}`. For the function `@{}` syntax, the array index must be referenced using a prefix of "impdata" - so in the above example, the note name code could use `impdata.logid.title`.
+- The `${}` syntax can be used like `${@logid.title}-${title}`.
+- For the function `@{}` syntax, the array index must be referenced using a prefix of `impdata` - so in the above example, the note name code could use `impdata.logid.title`.
 
 Yes, it should be possible to access multiple nested levels of arrays.
 
