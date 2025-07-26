@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.38.4
+
+- Replace `getAbstractFileByPath` by `getFolderByPath` or `getFileByPath` whichever is relevant to the situation.
+
 ## 0.38.3
 
 - In the simple syntax, the new array index variables can be used, so a note name template could be `${@logid.title}-${subtitle}`.

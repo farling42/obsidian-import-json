@@ -232,7 +232,7 @@ export default class JsonImport extends Plugin {
     if (pos < 0) return true;
     let filepath = filename.slice(0, pos);
     if (this.knownpaths.has(filepath)) return true;
-    let exists = this.app.vault.getAbstractFileByPath(filepath);
+    let exists = this.app.vault.getFolderByPath(filepath);
     // createFolder will create intervening paths too
     if (!exists) {
       console.log(`Creating folder for ${filepath}`);
@@ -403,7 +403,7 @@ export default class JsonImport extends Plugin {
 
         await this.checkPath(filename);
         // Delete the old version, if it exists
-        let file = this.app.vault.getAbstractFileByPath(filename);
+        let file = this.app.vault.getFileByPath(filename);
         if (file === null)
           await this.app.vault.create(filename, body).catch((err: any) => console.log(`app.vault.create("${filename}"): ${err}`));
         else
