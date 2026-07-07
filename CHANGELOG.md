@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.38.5
+- Change name to "JSON-CSV Importer" since Obsidian decided to disallow other special characters (such as "/").
+- Minor rewording of description to remove two "Warning" from the plugin listing.
+
 ## 0.38.4
 
 - Replace `getAbstractFileByPath` by `getFolderByPath` or `getFileByPath` whichever is relevant to the situation.
